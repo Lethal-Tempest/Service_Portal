@@ -48,19 +48,21 @@ const workerSchema = new mongoose.Schema({
   },
   previousWorkPicsUrl: {
     type: [String],
+  },
+  price: {
+    type: Number,
     required: true,
   },
   reviews: [
     {
-      ratings: {
+      rating: {
         type: Number,
         required: true,
       },
-      comments: {
+      comment: {
         type: String,
-        required: true,
       },
-      dates: {
+      date: {
         type: Date,
         required: true,
       },
@@ -71,6 +73,7 @@ const workerSchema = new mongoose.Schema({
       },
       isAnon: {
         type: Boolean,
+        default: false,
         required: true,
       },
     },
@@ -85,7 +88,6 @@ const workerSchema = new mongoose.Schema({
   },
   introVidUrl: {
     type: String,
-    required: true,
   },
 });
 
