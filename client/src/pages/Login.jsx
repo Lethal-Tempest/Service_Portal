@@ -6,6 +6,7 @@ import { Input } from '../components/ui/input';
 import { Card } from '../components/ui/card';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../hooks/use-toast';
+import axios from 'axios';
 
 export const Login = () => {
   const [searchParams] = useSearchParams();
@@ -26,7 +27,9 @@ export const Login = () => {
     setIsLoading(true);
 
     try {
-      const success = await login(email, password, selectedRole);
+      const success = await axios.post('/api/auth/login', {
+        
+      });
       
       if (success) {
         toast({
