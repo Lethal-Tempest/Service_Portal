@@ -1,5 +1,5 @@
 import express from 'express'
-import {signin, signup, getReviews, addReview, getReviews, addReview} from '../controllers/workerControllers.js'
+import {signin, signup, getReviews, addReview} from '../controllers/workerControllers.js'
 import { editWorkerProfile } from '../controllers/editControllers.js';
 import upload from '../middlewares/multer.js';
 import authUser from '../middlewares/auth.js';

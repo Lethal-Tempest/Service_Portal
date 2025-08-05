@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Users, CheckCircle, Star, ArrowRight, MapPin, Clock, Shield } from 'lucide-react';
 import { Button } from '../components/ui/button';
@@ -57,6 +57,10 @@ export const Home = () => {
     { number: '100+', label: 'Cities Covered' },
     { number: '4.8', label: 'Average Rating' }
   ];
+
+  useEffect(() => {
+    console.log("Token: ", localStorage?.getItem('token'));
+  }, []);
 
   return (
     <div className="min-h-screen">

@@ -27,15 +27,15 @@ export const Login = () => {
     setIsLoading(true);
 
     try {
-      const success = await axios.post('/api/auth/login', {
-        
-      });
-      
+      console.log(selectedRole, email, password);
+      const response = selectedRole === 'customer' ? await axios.post('http://localhost:5000/api/client/signin', { email, password }) : await axios.post('http://localhost:5000/api/worker/signin', { email, password });
+      const success = response.data.success;
       if (success) {
         toast({
           title: "Welcome back!",
           description: "You have been successfully logged in.",
         });
+        localStorage.setItem('token', response.data.token);
         navigate('/');
       } else {
         toast({
@@ -50,6 +50,7 @@ export const Login = () => {
         description: "Something went wrong. Please try again.",
         variant: "destructive",
       });
+      console.error(error);
     } finally {
       setIsLoading(false);
     }
