@@ -6,7 +6,6 @@ import { Input } from '../components/ui/input';
 import { Card } from '../components/ui/card';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../hooks/use-toast';
-import axios from 'axios';
 
 export const Login = () => {
   const [searchParams] = useSearchParams();
@@ -17,7 +16,7 @@ export const Login = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const { login } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -27,34 +26,37 @@ export const Login = () => {
     setIsLoading(true);
 
     try {
-      console.log(selectedRole, email, password);
-      const response = selectedRole === 'customer' ? await axios.post('http://localhost:5000/api/client/signin', { email, password }) : await axios.post('http://localhost:5000/api/worker/signin', { email, password });
-      const success = response.data.success;
-      if (success) {
+      // Call login from AuthContext passing email, password and selectedRole
+      // I've renamed 'response' to 'result' for clarity
+      const result = await login(email, password, selectedRole);
+
+      // Access 'success' directly from the result object
+      if (result.success) {
         toast({
-          title: "Welcome back!",
-          description: "You have been successfully logged in.",
+          title: 'Welcome back!',
+          description: 'You have been successfully logged in.',
         });
-        localStorage.setItem('token', response.data.token);
         navigate('/');
       } else {
         toast({
-          title: "Login failed",
-          description: "Invalid credentials. Please try again.",
-          variant: "destructive",
+          title: 'Login failed',
+          // Access 'message' directly from the result object
+          description: result.message,
+          variant: 'destructive',
         });
       }
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
-        variant: "destructive",
+        title: 'Error',
+        description: error.message,
+        variant: 'destructive',
       });
       console.error(error);
     } finally {
       setIsLoading(false);
     }
   };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center p-4">
@@ -155,7 +157,7 @@ export const Login = () => {
 
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
               <Link
                 to={`/register?role=${selectedRole}`}
                 className="text-primary font-medium hover:text-primary-dark"

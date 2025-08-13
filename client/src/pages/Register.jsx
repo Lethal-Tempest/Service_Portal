@@ -84,42 +84,67 @@ export const Register = () => {
     }
   };
 
-  const handleWorkerSubmit = async () => {
-    if (workerData.password !== workerData.confirmPassword) {
-      toast({
-        title: "Password mismatch",
-        description: "Please ensure both passwords match.",
-        variant: "destructive",
-      });
-      return;
+  const handleWorkerSubmit = async (e) => {
+  e.preventDefault();
+  setIsLoading(true);
+
+  try {
+    const formData = new FormData();
+    formData.append('name', workerData.name);
+    formData.append('email', workerData.email);
+    formData.append('password', workerData.password);
+    formData.append('phone', workerData.phone);
+    formData.append('location', workerData.location);
+    formData.append('occupation', workerData.profession);
+    formData.append('skills', JSON.stringify(workerData.skills)); // or comma-separated string
+    formData.append('experience', workerData.experience);
+    formData.append('availability', workerData.availability || '');
+    formData.append('bio', workerData.bio);
+    formData.append('aadhar', workerData.aadharNumber);
+    formData.append('price', workerData.price || 0);
+
+    if (workerData.profilePicFile) {
+      formData.append('profilePic', workerData.profilePicFile);
+    }
+    if (workerData.aadharPicFile) {
+      formData.append('aadharPic', workerData.aadharPicFile);
+    }
+    if (workerData.introVidFile) {
+      formData.append('introVid', workerData.introVidFile);
+    }
+    if (workerData.previousWorkPicsFiles) {
+      workerData.previousWorkPicsFiles.forEach((file) =>
+        formData.append('previousWorkPics', file)
+      );
     }
 
-    setIsLoading(true);
-    try {
-      const success = await register({
-        ...workerData,
-        role: 'worker',
-        skills: workerData.skills.split(',').map(s => s.trim()),
-        experience: parseInt(workerData.experience) || 0
-      });
-      
-      if (success) {
-        toast({
-          title: "Welcome to WorkerConnect!",
-          description: "Your worker profile has been created successfully.",
-        });
-        navigate('/');
-      }
-    } catch (error) {
+    // Only call register here, which handles the POST request internally
+    const success = await register(formData, 'worker');
+
+    if (success) {
       toast({
-        title: "Registration failed",
-        description: "Something went wrong. Please try again.",
-        variant: "destructive",
+        title: 'Welcome back!',
+        description: 'You have been successfully logged in.',
       });
-    } finally {
-      setIsLoading(false);
+      navigate('/');
+    } else {
+      toast({
+        title: 'Registration failed',
+        description: 'Please try again.',
+        variant: 'destructive',
+      });
     }
-  };
+  } catch (error) {
+    toast({
+      title: 'Error',
+      description: error.message || 'Something went wrong.',
+      variant: 'destructive',
+    });
+    console.error(error);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const renderCustomerForm = () => (
     <form onSubmit={handleCustomerSubmit} className="space-y-4">

@@ -21,17 +21,15 @@ export const signup = async (req, res) => {
     const aadharPic = req.files?.aadharPic?.[0];
     const introVid = req.files?.introVid?.[0];
 
-    const missing = [];
-    if (!profilePic) missing.push('profilePic');
-    if (!aadharPic) missing.push('aadharPic');
-    if (!introVid) missing.push('introVid');
-    if (missing.length) {
-      return res.status(400).json({
-        success: false,
-        message: `Missing required file field(s): ${missing.join(', ')}.`
-      });
-    }
+    // // Only require aadharPic; profilePic and introVid are optional now
+    // if (!aadharPic) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: `Missing required file field(s): aadharPic.`
+    //   });
+    // }
 
+    // Validate email, password and uniqueness same as before
     const exists = await workerModel.findOne({ email });
     if (exists) {
       return res.status(409).json({ success: false, message: 'User already exists' });
@@ -45,22 +43,40 @@ export const signup = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Password must be at least 8 characters' });
     }
 
-    // upload assets
-    const profilePicRes = await cloudinary.uploader.upload(profilePic.path, { resource_type: 'image' });
-    const profilePicUrl = profilePicRes.secure_url;
+    // Upload profilePic if provided, else use default
+    let profilePicUrl = 'https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg';
+    if (profilePic) {
+      const profilePicRes = await cloudinary.uploader.upload(profilePic.path, { resource_type: 'image' });
+      profilePicUrl = profilePicRes.secure_url || profilePicUrl;
+    }
 
-    const previousWorkPicsUrl = await Promise.all(
-      previousWorkPics.map(async (image) => {
-        const result = await cloudinary.uploader.upload(image.path, { resource_type: 'image' });
-        return result.secure_url;
-      })
-    );
+    // Upload previous work pics if any
+    let previousWorkPicsUrl = [];
+    if (previousWorkPics.length > 0) {
+      previousWorkPicsUrl = await Promise.all(
+        previousWorkPics.map(async (image) => {
+          const result = await cloudinary.uploader.upload(image.path, { resource_type: 'image' });
+          return result.secure_url;
+        })
+      );
+    }
 
-    const aadharRes = await cloudinary.uploader.upload(aadharPic.path, { resource_type: 'image' });
-    const aadharPicUrl = aadharRes.secure_url;
+    let aadharPicUrl = '';
+    if (aadharPic) {
+      const aadharRes = await cloudinary.uploader.upload(aadharPic.path, { resource_type: 'image' });
+      aadharPicUrl = aadharRes.secure_url || aadharPicUrl;
+    }
 
-    const introVidRes = await cloudinary.uploader.upload(introVid.path, { resource_type: 'video' });
-    const introVidUrl = introVidRes.secure_url;
+    // Upload intro video if provided, else null
+    let introVidUrl = null;
+    if (introVid) {
+      const introVidRes = await cloudinary.uploader.upload(introVid.path, { resource_type: 'video' });
+      introVidUrl = introVidRes.secure_url;
+    }
+
+    availability = availability? 'True' : 'False';
+    bio = bio || '';
+    previousWorkPicsUrl = previousWorkPicsUrl || [];
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -78,7 +94,7 @@ export const signup = async (req, res) => {
       bio,
       aadhar,
       price,
-      profilePicUrl,
+      profilePic: profilePicUrl,
       previousWorkPicsUrl,
       aadharPicUrl,
       introVidUrl
@@ -102,6 +118,7 @@ export const signup = async (req, res) => {
 };
 
 
+
 export const signin = async (req, res) => {
   try {
     const { email, password } = req.body || {};
@@ -111,7 +128,7 @@ export const signin = async (req, res) => {
 
     const user = await workerModel.findOne({ email });
     if (!user) {
-      return res.status(401).json({ success: false, message: 'User Not Found' });
+      return res.status(404).json({ success: false, message: 'User Not Found' });
     }
 
     const match = await bcrypt.compare(password, user.password);
@@ -196,7 +213,34 @@ export const getReviews = async (req, res) => {
 };
 
 
-
+export const getProfile = async (req, res) => {
+  try {
+    const token = req.headers.token || (req.headers.authorization && req.headers.authorization.split(" ")[1]);
+    if (!token || token.trim() === '') {
+      return res.status(400).json({
+        success: false,
+        message: 'Token not found'
+      });
+    }
+    const token_decode = jwt.verify(token, process.env.JWT_SECRET);
+    const id = token_decode.id;
+    const worker = await workerModel.findById(id);
+    if (!worker) {
+      return res.status(404).json({ success: false, message: 'Worker not found' });
+    }
+    res.json({
+      success: true,
+      message: 'Worker profile fetched successfully',
+      worker
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
 
 
 

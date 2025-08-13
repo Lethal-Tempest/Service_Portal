@@ -11,29 +11,27 @@ const createToken = (id) => {
 export const signup = async (req, res) => {
     try {
         const {name, email, password, phone, location} = req.body;
-        const profilePic = req.files?.profilePic?.[0];
-        const uploadResult = await cloudinary.uploader.upload(profilePic.path, { resource_type: "image" });
-        const profilePicUrl = uploadResult.secure_url;
+        const profilePic = req?.files?.profilePic?.[0];
+        let profilePicUrl;
+
+        if (profilePic) {
+            const uploadResult = await cloudinary.uploader.upload(profilePic.path, { resource_type: "image" });
+            profilePicUrl = uploadResult.secure_url;
+        } else {
+            profilePicUrl = 'https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg';
+        }
+
         const exists = await clientModel.findOne({ email });
         if (exists) {
-            return res.json({
-                success: false,
-                message: "User already exists"
-            });
+            return res.json({ success: false, message: "User already exists" });
         }
 
         if (!validator.isEmail(email)) {
-            return res.json({
-                success: false,
-                message: "Invalid email"
-            });
+            return res.json({ success: false, message: "Invalid email" });
         }
 
         if (password.length < 8) {
-            return res.json({
-                success: false,
-                message: "Password must be at least 8 characters"
-            });
+            return res.json({ success: false, message: "Password must be at least 8 characters" });
         }
 
         const salt = await bcrypt.genSalt(10);
@@ -45,7 +43,7 @@ export const signup = async (req, res) => {
             password: hashedPassword,
             phone,
             location,
-            profilePicUrl
+            profilePic: profilePicUrl
         });
 
         const newUser = await user.save();
@@ -58,13 +56,10 @@ export const signup = async (req, res) => {
         });
     } catch (error) {
         console.log(error);
-        res.json({
-            success: false,
-            message: error.message
-        });
+        res.json({ success: false, message: error.message });
     }
-    console.log(req.body);
-}
+};
+
 
 export const signin = async (req, res) => {
     try {
@@ -97,5 +92,28 @@ export const signin = async (req, res) => {
             success: false,
             message: error.message
         })
+    }
+}
+
+export const getProfile = async (req, res) => {
+    try {
+        const token = req.headers.token || (req.headers.authorization && req.headers.authorization.split(" ")[1]);
+        if (!token || token.trim() === '') {
+            return res.json({ success: false, message: "Token not found" });
+        }
+        const token_decode = jwt.verify(token, process.env.JWT_SECRET);
+        const id = token_decode.id;
+        const user = await clientModel.findById(id);
+        if (!user) {
+            return res.json({ success: false, message: "User does not exist" });
+        }
+        res.json({
+            success: true,
+            message: "User profile fetched successfully",
+            user
+        });
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: error.message });
     }
 }

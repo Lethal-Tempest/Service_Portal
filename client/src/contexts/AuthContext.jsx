@@ -1,3 +1,4 @@
+import axios from 'axios';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
 const AuthContext = createContext(undefined);
@@ -13,60 +14,65 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (email, password, role) => {
-    const validCredentials = [
-      { email: 'admin', password: '12345678', role: 'customer' },
-      { email: 'worker', password: '12345678', role: 'worker' },
-      { email: 'sharath', password: '12345678', role: 'customer' },
-      { email: 'sharath', password: '12345678', role: 'worker' }
-    ];
-
-    const isValid = validCredentials.some(
-      cred =>
-        cred.email === email && cred.password === password && cred.role === role
-    );
-
-    if (isValid) {
-      const baseUser = {
-        email,
-        role,
-        name: role === 'customer' ? 'Sharath Kumar' : 'Sharath Singh',
-        phone: '+91 9876543210',
-        location: role === 'customer' ? 'Hyderabad' : 'Delhi',
-        profilePicture:
-          'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face'
-      };
-
-      const workerFields =
-        role === 'worker'
-          ? {
-              workerId: 'WK001',
-              profession: 'Plumber',
-              experience: 5,
-              bio: 'Experienced plumber with 5+ years in residential and commercial work.',
-              skills: ['Pipe Fitting', 'Leak Repair', 'Bathroom Installation'],
-              designation: 'Senior Plumber',
-              department: 'Home Services',
-              workLocation: 'Service Center',
-              joiningDate: '2022-01-15',
-              shiftTiming: '9 AM - 6 PM',
-              supervisor: 'Mike Johnson',
-              workStatus: 'Active',
-              lastLogin: new Date().toLocaleString(),
-              salary: '$55,000/year',
-              paymentCycle: 'Monthly',
-              rating: 4.8,
-              totalReviews: 127
-            }
-          : {};
-
-      const finalUser = { ...baseUser, ...workerFields };
-
-      setUser(finalUser);
-      localStorage.setItem('workerConnect_user', JSON.stringify(finalUser));
-      return true;
+    if (!email || !password || !role) {
+      // Indicate failure if inputs are missing
+      return { success: false, message: "Email, password, and role are required." };
     }
 
-    return false;
+    let apiUrl = '';
+    if (role === 'customer') {
+      apiUrl = 'http://localhost:5000/api/client/signin';
+    } else if (role === 'worker') {
+      apiUrl = 'http://localhost:5000/api/worker/signin';
+    } else {
+      // Handle invalid role if necessary
+      return { success: false, message: "Invalid role specified." };
+    }
+    console.log(role, apiUrl)
+
+    try {
+      const response = await axios.post(apiUrl, { email, password });
+
+      if (response.data.success) {
+        const userData = response.data.user || {};
+        const token = response.data.token;
+
+        const finalUser = {
+          ...userData,
+          role,
+          token
+        };
+
+        // Assuming 'setUser' is a state setter function (e.g., from useState in React)
+        // This updates your client-side application's user state.
+        setUser(finalUser);
+        localStorage.setItem('role', JSON.stringify(finalUser.role)); // Storing the whole user object is usually better
+        localStorage.setItem('token', token);
+
+        // Return success status and data for the caller of the login function
+        return {
+          success: true,
+          message: 'User logged in successfully',
+          token: token,
+          user: finalUser // Optionally return the user data as well
+        };
+      } else {
+        // If the API call was successful but the server indicated login failure
+        console.log(role, apiUrl); // Still log for debugging if needed
+        console.log(response)
+        return {
+          success: false,
+          message: response.data.message || 'Login failed.'
+        };
+      }
+    } catch (error) {
+      console.error('Login failed:', error.response ? error.response.data : error.message);
+      // Return failure status and error message
+      return {
+        success: false,
+        message: error.response ? error.response.data.message : 'Network error or server unavailable.'
+      };
+    }
   };
 
   const logout = () => {
@@ -81,11 +87,30 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('workerConnect_user', JSON.stringify(updatedUser));
   };
 
-  const register = async (data) => {
-    setUser(data);
-    localStorage.setItem('workerConnect_user', JSON.stringify(data));
-    return true;
+
+
+  const register = async (data, role) => {
+    let apiUrl = '';
+    console.log(role, data)
+    if (role === 'worker') {
+      apiUrl = 'http://localhost:5000/api/worker/signup';
+    } else {
+      apiUrl = 'http://localhost:5000/api/client/signup';
+    }
+
+    try {
+      const response = await axios.post(apiUrl, data, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      localStorage.setItem('token', response.data.token);
+      return response.status === 201 || response.data.success;
+    } catch (error) {
+      console.log(error.message);
+      console.error('Registration failed', error);
+      return false;
+    }
   };
+
 
   const isAuthenticated = !!user;
 

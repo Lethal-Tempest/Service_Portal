@@ -1,5 +1,4 @@
 import workerModel from "../models/workerModel.js";
-import User from "../models/clientModel.js"
 
 
 export const fetchAllWorkers = async (req, res) => {

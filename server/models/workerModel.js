@@ -22,9 +22,10 @@ const workerSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  profilePicUrl: {
+  profilePic: {
     type: String,
-    required: true,
+    required: false,
+    default: 'https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg'
   },
   occupation: {
     type: String,
@@ -48,6 +49,8 @@ const workerSchema = new mongoose.Schema({
   },
   previousWorkPicsUrl: {
     type: [String],
+    required: false, 
+    default: []
   },
   price: {
     type: Number,
@@ -84,10 +87,12 @@ const workerSchema = new mongoose.Schema({
   },
   aadharPicUrl: {
     type: String,
-    required: true,
+    required: false,
   },
   introVidUrl: {
     type: String,
+    required: false,
+    default: null
   },
 });
 
