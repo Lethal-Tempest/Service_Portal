@@ -17,7 +17,7 @@ export const Register = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const [customerData, setCustomerData] = useState({
     name: '',
     email: '',
@@ -33,7 +33,9 @@ export const Register = () => {
     experience: '',
     bio: '',
     skills: '',
-    aadharNumber: ''
+    aadharNumber: '',
+    aadharImage: null,
+    introVideo: null,
   });
 
   const { register } = useAuth();
@@ -41,7 +43,7 @@ export const Register = () => {
   const navigate = useNavigate();
 
   const professions = [
-    'Plumber', 'Electrician', 'Carpenter', 'House Cleaner', 'Painter', 
+    'Plumber', 'Electrician', 'Carpenter', 'House Cleaner', 'Painter',
     'Gardener', 'Mason', 'AC Technician', 'Appliance Repair', 'Driver'
   ];
 
@@ -49,7 +51,7 @@ export const Register = () => {
 
   const handleCustomerSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (customerData.password !== customerData.confirmPassword) {
       toast({
         title: "Password mismatch",
@@ -65,7 +67,7 @@ export const Register = () => {
         ...customerData,
         role: 'customer'
       });
-      
+
       if (success) {
         toast({
           title: "Welcome to WorkerConnect!",
@@ -185,6 +187,8 @@ export const Register = () => {
             required
           />
         </div>
+
+        
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
           <Input
@@ -374,77 +378,225 @@ export const Register = () => {
           </div>
         );
 
-      case 3:
-        return (
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
-                <div className="relative">
-                  <Input
-                    type={showPassword ? 'text' : 'password'}
-                    value={workerData.password}
-                    onChange={(e) => setWorkerData({...workerData, password: e.target.value})}
-                    placeholder="Create a password"
-                    className='w-full bg-white border border-black-200 focus:outline-none focus:border-black'
-                    required
-                    minLength={8}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
-                  >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
-                <Input
-                  type="password"
-                  value={workerData.confirmPassword}
-                  onChange={(e) => setWorkerData({...workerData, confirmPassword: e.target.value})}
-                  placeholder="Confirm your password"
-                  className='w-full bg-white border border-black-200 focus:outline-none focus:border-black'
-                  required
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Aadhar Number</label>
-              <Input
-                type="text"
-                value={workerData.aadharNumber}
-                onChange={(e) => setWorkerData({...workerData, aadharNumber: e.target.value})}
-                placeholder="XXXX-XXXX-XXXX"
-                className='w-full bg-white border border-black-200 focus:outline-none focus:border-black'
-                required
-              />
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Profile Photo</label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                  <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                  <p className="text-sm text-gray-600">Click to upload or drag and drop</p>
-                  <p className="text-xs text-gray-500">PNG, JPG up to 5MB</p>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Work Portfolio (Optional)</label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                  <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                  <p className="text-sm text-gray-600">Upload photos of your work</p>
-                  <p className="text-xs text-gray-500">Multiple files allowed</p>
-                </div>
-              </div>
-            </div>
+         case 3:
+  return (
+    <div className="space-y-4">
+      {/* Password Fields */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+          <div className="relative">
+            <Input
+              type={showPassword ? 'text' : 'password'}
+              value={workerData.password}
+              onChange={(e) => setWorkerData({ ...workerData, password: e.target.value })}
+              placeholder="Create a password"
+              className="w-full bg-white border border-black-200 focus:outline-none focus:border-black"
+              required
+              minLength={8}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+            >
+              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
           </div>
-        );
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
+          <Input
+            type="password"
+            value={workerData.confirmPassword}
+            onChange={(e) => setWorkerData({ ...workerData, confirmPassword: e.target.value })}
+            placeholder="Confirm your password"
+            className="w-full bg-white border border-black-200 focus:outline-none focus:border-black"
+            required
+          />
+        </div>
+      </div>
+
+      {/* Aadhaar Number */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Aadhaar Number</label>
+        <Input
+          type="text"
+          value={workerData.aadharNumber}
+          onChange={(e) => setWorkerData({ ...workerData, aadharNumber: e.target.value })}
+          placeholder="XXXX-XXXX-XXXX"
+          className="w-full bg-white border border-black-200 focus:outline-none focus:border-black"
+          required
+        />
+      </div>
+
+      {/* Aadhaar Image */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Aadhaar Image</label>
+        <div
+          className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer"
+          onClick={() => document.getElementById('aadharImageInput').click()}
+        >
+          {workerData.aadharImage ? (
+            <img
+              src={URL.createObjectURL(workerData.aadharImage)}
+              alt="Aadhaar Preview"
+              className="mx-auto max-h-40 object-contain rounded-md"
+            />
+          ) : (
+            <>
+              <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+              <p className="text-sm text-gray-600">Click to upload or drag and drop</p>
+              <p className="text-xs text-gray-500">PNG, JPG up to 5MB</p>
+            </>
+          )}
+          <input
+            id="aadharImageInput"
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => setWorkerData({ ...workerData, aadharImage: e.target.files[0] })}
+            required
+          />
+        </div>
+      </div>
+
+      {/* Profile Photo */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Profile Photo</label>
+        <div
+          className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer"
+          onClick={() => document.getElementById('profilePhotoInput').click()}
+        >
+          {workerData.profilePhoto ? (
+            <img
+              src={URL.createObjectURL(workerData.profilePhoto)}
+              alt="Profile Preview"
+              className="mx-auto max-h-40 object-contain rounded-md"
+            />
+          ) : (
+            <>
+              <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+              <p className="text-sm text-gray-600">Click to upload or drag and drop</p>
+              <p className="text-xs text-gray-500">PNG, JPG up to 5MB</p>
+            </>
+          )}
+          <input
+            id="profilePhotoInput"
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => setWorkerData({ ...workerData, profilePhoto: e.target.files[0] })}
+            required
+          />
+        </div>
+      </div>
+
+      {/* Work Portfolio */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Work Portfolio (Optional)</label>
+        <div
+          className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer"
+          onClick={() => document.getElementById('workPortfolioInput').click()}
+        >
+          {workerData.workPortfolio?.length > 0 ? (
+            <div className="flex gap-2 overflow-x-auto">
+              {workerData.workPortfolio.map((file, idx) => (
+                <img
+                  key={idx}
+                  src={URL.createObjectURL(file)}
+                  alt={`Portfolio ${idx + 1}`}
+                  className="h-20 object-contain rounded-md"
+                />
+              ))}
+            </div>
+          ) : (
+            <>
+              <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+              <p className="text-sm text-gray-600">Upload photos of your work</p>
+              <p className="text-xs text-gray-500">Multiple files allowed</p>
+            </>
+          )}
+          <input
+            id="workPortfolioInput"
+            type="file"
+            accept="image/*"
+            multiple
+            className="hidden"
+            onChange={(e) => setWorkerData({ ...workerData, workPortfolio: Array.from(e.target.files) })}
+          />
+        </div>
+      </div>
+
+      {/* Intro Video */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Intro Video</label>
+        <div
+          className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer"
+          onClick={() => document.getElementById('introVideoInput').click()}
+        >
+          {workerData.introVideo ? (
+            <video
+              src={URL.createObjectURL(workerData.introVideo)}
+              controls
+              className="mx-auto max-h-40 object-contain rounded-md"
+            />
+          ) : (
+            <>
+              <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+              <p className="text-sm text-gray-600">Click to upload or drag and drop your intro video</p>
+              <p className="text-xs text-gray-500">MP4, AVI, MOV up to 50MB</p>
+            </>
+          )}
+          <input
+            id="introVideoInput"
+            type="file"
+            accept="video/*"
+            className="hidden"
+            onChange={(e) => setWorkerData({ ...workerData, introVideo: e.target.files[0] })}
+          />
+        </div>
+      </div>
+
+      {/* Availability */}
+<div>
+  <label className="block text-sm font-medium text-gray-700 mb-2">
+    Are you available immediately?
+  </label>
+  <div className="flex items-center gap-6">
+    <label className="flex items-center gap-2">
+      <input
+        type="checkbox"
+        name="availability"
+        value="yes"
+        checked={workerData.availableImmediately === 'yes'}
+        onChange={(e) => setWorkerData({ ...workerData, availableImmediately: e.target.value })}
+        className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
+      />
+      <span className="text-gray-700">Yes</span>
+    </label>
+    <label className="flex items-center gap-2">
+      <input
+        type="checkbox"
+        name="availability"
+        value="no"
+        checked={workerData.availableImmediately === 'no'}
+        onChange={(e) => setWorkerData({ ...workerData, availableImmediately: e.target.value })}
+        className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
+      />
+      <span className="text-gray-700">No</span>
+    </label>
+  </div>
+</div>
+
+    </div>
+  );
+
+
+
+
+        
+     
 
       case 4:
         return (

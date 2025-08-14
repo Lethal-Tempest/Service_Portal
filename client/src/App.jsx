@@ -16,6 +16,8 @@ import { Bookings } from "./pages/Bookings";
 import NotFound from "./pages/NotFound";
 import Profile from "./pages/ProfilePage"; // Make sure this matches actual file structure
 
+
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -35,7 +37,8 @@ const App = () => (
               <Route path="/search" element={<Search />} />
               <Route path="/bookings" element={<Bookings />} />
               <Route path="/profile" element={<Profile />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+               <Route path="/profile" element={<ProfilePage />} />           
+               <Route path="/profile/:userId" element={<ProfilePage />} />
               {/* <Route path="*" element={<NotFound />} /> */}
             </Routes>
           </div>
