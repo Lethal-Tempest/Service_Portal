@@ -14,7 +14,8 @@ import { Search } from "./pages/Search";
 import { About } from "./pages/About";
 import { Bookings } from "./pages/Bookings";
 import NotFound from "./pages/NotFound";
-import Profile from "./pages/ProfilePage"; // Make sure this matches actual file structure
+import ProfilePage from "./pages/ProfilePage"; // Make sure this matches actual file structure
+import Profile from './pages/Profile'
 
 
 
