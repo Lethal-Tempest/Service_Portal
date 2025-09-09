@@ -2,7 +2,7 @@ import validator from 'validator';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import workerModel from '../models/workerModel.js';
-import {v2 as cloudinary} from 'cloudinary';
+import { v2 as cloudinary } from 'cloudinary';
 
 const createToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET);
@@ -21,15 +21,7 @@ export const signup = async (req, res) => {
     const aadharPic = req.files?.aadharPic?.[0];
     const introVid = req.files?.introVid?.[0];
 
-    // // Only require aadharPic; profilePic and introVid are optional now
-    // if (!aadharPic) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     message: `Missing required file field(s): aadharPic.`
-    //   });
-    // }
-
-    // Validate email, password and uniqueness same as before
+    // Validate email, password and uniqueness
     const exists = await workerModel.findOne({ email });
     if (exists) {
       return res.status(409).json({ success: false, message: 'User already exists' });
@@ -50,7 +42,7 @@ export const signup = async (req, res) => {
       profilePicUrl = profilePicRes.secure_url || profilePicUrl;
     }
 
-    // Upload previous work pics if any
+    // Upload previous work pics
     let previousWorkPicsUrl = [];
     if (previousWorkPics.length > 0) {
       previousWorkPicsUrl = await Promise.all(
@@ -61,22 +53,23 @@ export const signup = async (req, res) => {
       );
     }
 
+    // Upload aadhar
     let aadharPicUrl = '';
     if (aadharPic) {
       const aadharRes = await cloudinary.uploader.upload(aadharPic.path, { resource_type: 'image' });
       aadharPicUrl = aadharRes.secure_url || aadharPicUrl;
     }
 
-    // Upload intro video if provided, else null
+    // Upload intro video
     let introVidUrl = null;
     if (introVid) {
       const introVidRes = await cloudinary.uploader.upload(introVid.path, { resource_type: 'video' });
       introVidUrl = introVidRes.secure_url;
     }
 
-    availability = availability? 'True' : 'False';
-    bio = bio || '';
-    previousWorkPicsUrl = previousWorkPicsUrl || [];
+    // Prepare safe values
+    const finalAvailability = availability ? 'True' : 'False';
+    const finalBio = bio || '';
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -90,8 +83,8 @@ export const signup = async (req, res) => {
       occupation,
       skills,
       experience,
-      availability,
-      bio,
+      availability: finalAvailability,
+      bio: finalBio,
       aadhar,
       price,
       profilePic: profilePicUrl,
@@ -140,13 +133,29 @@ export const signin = async (req, res) => {
     return res.json({
       success: true,
       message: 'User logged in successfully',
-      token
+      token,
+      user   // 👈 include user details
     });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ success: false, message: error.message });
   }
 };
+
+export const getWorkerById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const worker = await workerModel.findById(id).select("-password"); // hide password
+    if (!worker) {
+      return res.status(404).json({ success: false, message: "Worker not found" });
+    }
+    res.json({ success: true, worker });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 
 
 export const addReview = async (req, res) => {

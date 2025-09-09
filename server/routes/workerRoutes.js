@@ -1,5 +1,5 @@
 import express from 'express'
-import {signin, signup, getReviews, addReview} from '../controllers/workerControllers.js'
+import {signin, signup, getReviews, addReview, getProfile, getWorkerById} from '../controllers/workerControllers.js'
 import { editWorkerProfile } from '../controllers/editControllers.js';
 import upload from '../middlewares/multer.js';
 import authUser from '../middlewares/auth.js';
@@ -28,5 +28,7 @@ workerRouter.put(
     editWorkerProfile);
 workerRouter.get('/:id/reviews', authUser, getReviews);
 workerRouter.post('/:id/addReview', authUser, addReview);
+workerRouter.get('/profile', authUser, getProfile);   // 👈 add this
+workerRouter.get('/:id', getWorkerById);              // 👈 add this (public)
 
 export default workerRouter
