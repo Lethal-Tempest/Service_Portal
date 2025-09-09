@@ -36,7 +36,7 @@ export const Navigation = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <Link to="/" className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-[#2979FF] rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-xl">W</span>
             </div>
             <span className="text-xl font-bold gradient-text">WorkerConnect</span>
@@ -49,8 +49,8 @@ export const Navigation = () => {
                 to={link.path}
                 className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                   isActivePath(link.path)
-                    ? 'text-primary bg-primary/10'
-                    : 'text-gray-700 hover:text-primary hover:bg-primary/5'
+                    ? 'text-[#2979FF] bg-[#2979FF]/10'
+                    : 'text-gray-700 hover:text-[#2979FF] hover:bg-[#2979FF]/5'
                 }`}
               >
                 {link.label}

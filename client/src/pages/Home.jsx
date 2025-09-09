@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Users, CheckCircle, Star, ArrowRight, MapPin, Clock, Shield } from 'lucide-react';
+
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { StarRating } from '../components/ui/StarRating';
@@ -237,7 +238,7 @@ export const Home = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-[#2979FF] rounded-full flex items-center justify-center mx-auto mb-4">
                 <Search className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-xl font-semibold mb-3">1. Search & Browse</h3>
@@ -247,7 +248,7 @@ export const Home = () => {
             </div>
 
             <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-secondary rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-[#FFA733] rounded-full flex items-center justify-center mx-auto mb-4">
                 <Users className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-xl font-semibold mb-3">2. Connect & Book</h3>
@@ -257,7 +258,7 @@ export const Home = () => {
             </div>
 
             <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-[#2979FF] rounded-full flex items-center justify-center mx-auto mb-4">
                 <CheckCircle className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-xl font-semibold mb-3">3. Get Work Done</h3>
@@ -270,7 +271,7 @@ export const Home = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-gradient-primary">
+      <section className="py-16 bg-[#2979FF]">
         <div className="max-w-4xl mx-auto text-center px-4">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
             Ready to Get Started?

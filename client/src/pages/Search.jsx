@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from '../components/ui/select';
 import axios from 'axios';
+import {Link} from "react-router-dom";
 
 export const Search = () => {
   const [mockWorkers, setMockWorkers] = useState([]);
@@ -284,64 +285,69 @@ export const Search = () => {
         {!isLoading && filteredWorkers.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredWorkers.map((worker) => (
-              <Card key={worker.id || worker._id} className="p-6 card-hover cursor-pointer">
+              <Card key={worker.id || worker._id} className="p-6 card-hover cursor-pointer border border-gray-200 rounded-xl shadow-sm">
                 {/* Worker Header */}
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center space-x-3">
                     <div className="relative">
                       <img
-                        src={worker.profilePicture || worker.profilePic || ''}
+                        src={worker.profilePicture || worker.profilePic || '/placeholder-avatar.png'}
                         alt={worker.name}
-                        className="w-14 h-14 rounded-full object-cover"
+                        className="w-14 h-14 rounded-full object-cover border-2 border-gray-100"
                       />
                       {worker.isVerified && (
-                        <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-success rounded-full flex items-center justify-center">
+                        <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
                           <Shield className="w-3 h-3 text-white" />
                         </div>
                       )}
                     </div>
                     <div>
-                      <h3 className="font-semibold text-lg text-gray-900">
+                      <h3 className="font-bold text-gray-900 text-lg">
                         {worker.name}
                       </h3>
-                      <p className="text-primary font-medium">{worker.profession}</p>
+                      <p className="text-blue-600 font-medium text-sm">{worker.profession}</p>
                     </div>
+                  </div>
+                </div>
+
+                {/* Rating and Price */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center">
+                    <div className="flex items-center bg-amber-100 px-2 py-1 rounded-md">
+                      <Star className="w-4 h-4 text-amber-500 fill-current mr-1" />
+                      <span className="font-semibold text-amber-700">{worker.rating || 0}</span>
+                    </div>
+                    <span className="text-sm text-gray-500 ml-2">
+                      ({worker.totalReviews || 0} reviews)
+                    </span>
                   </div>
                   <div className="text-right">
                     <div className="text-lg font-bold text-gray-900">
                       ₹{worker.hourlyRate || worker.price || 0}
                     </div>
-                    <div className="text-sm text-gray-500">per hour</div>
+                    <div className="text-xs text-gray-500">per hour</div>
                   </div>
-                </div>
-
-                {/* Rating */}
-                <div className="flex items-center justify-between mb-3">
-                  <StarRating rating={worker.rating || 0} size="sm" showRating />
-                  <span className="text-sm text-gray-500">
-                    ({worker.totalReviews || 0} reviews)
-                  </span>
                 </div>
 
                 {/* Location and Experience */}
                 <div className="space-y-2 mb-4">
                   <div className="flex items-center text-sm text-gray-600">
-                    <MapPin className="w-4 h-4 mr-2" />
+                    <MapPin className="w-4 h-4 mr-2 text-gray-400" />
                     {worker.location}
                   </div>
                   <div className="flex items-center text-sm text-gray-600">
-                    <Clock className="w-4 h-4 mr-2" />
+                    <Clock className="w-4 h-4 mr-2 text-gray-400" />
                     {worker.experience || 0} years experience
                   </div>
                 </div>
 
                 {/* Skills */}
                 <div className="mb-4">
-                  <div className="flex flex-wrap gap-1">
+                  <div className="flex flex-wrap gap-2">
                     {(worker.skills || []).slice(0, 3).map((skill, index) => (
                       <span
                         key={index}
-                        className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full"
+                        className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full border border-gray-200"
                       >
                         {skill}
                       </span>
@@ -355,23 +361,28 @@ export const Search = () => {
                 </div>
 
                 {/* Bio */}
-                <p className="text-sm text-gray-600 mb-4 line-clamp-2">{worker.bio}</p>
+                <p className="text-sm text-gray-600 mb-4 leading-relaxed">{worker.bio}</p>
 
                 {/* Response Time */}
                 {worker.responseTime && (
-                  <p className="text-xs text-gray-500 mb-4">{worker.responseTime}</p>
+                  <p className="text-xs text-green-600 mb-4 font-medium">{worker.responseTime}</p>
                 )}
+
+                {/* Divider */}
+                <div className="border-t border-gray-200 my-4"></div>
 
                 {/* Action Buttons */}
                 <div className="flex space-x-2">
-                  <Button className="flex-1 btn-primary">View Profile</Button>
-                  <Button variant="outline" size="sm" className="p-2" title="Message">
+                 <Link to={`/worker/${worker.id || worker._id}`} className="flex-1">
+                    <Button className="flex-1 bg-blue-600 hover:bg-blue-700">View Profile</Button>
+                </Link>
+                  <Button variant="outline" size="sm" className="p-2 text-blue-600 border-blue-200 hover:bg-blue-50" title="Message">
                     <MessageCircle className="w-4 h-4" />
                   </Button>
-                  <Button variant="outline" size="sm" className="p-2" title="Call">
+                  <Button variant="outline" size="sm" className="p-2 text-blue-600 border-blue-200 hover:bg-blue-50" title="Call">
                     <Phone className="w-4 h-4" />
                   </Button>
-                </div>
+                </div>  
               </Card>
             ))}
           </div>

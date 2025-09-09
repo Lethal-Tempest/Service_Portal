@@ -14,10 +14,8 @@ import { Search } from "./pages/Search";
 import { About } from "./pages/About";
 import { Bookings } from "./pages/Bookings";
 import NotFound from "./pages/NotFound";
-import ProfilePage from "./pages/ProfilePage"; // Make sure this matches actual file structure
+import ProfilePage from "./pages/ProfilePage"; 
 import Profile from './pages/Profile'
-
-
 
 const queryClient = new QueryClient();
 
@@ -37,10 +35,15 @@ const App = () => (
               <Route path="/register" element={<Register />} />
               <Route path="/search" element={<Search />} />
               <Route path="/bookings" element={<Bookings />} />
+
+              {/* Profile for logged-in user */}
               <Route path="/profile" element={<Profile />} />
-               <Route path="/profile" element={<ProfilePage />} />           
-               <Route path="/profile/:userId" element={<ProfilePage />} />
-              {/* <Route path="*" element={<NotFound />} /> */}
+
+              {/* Profile page for workers by id */}
+              <Route path="/profile/:userId" element={<ProfilePage />} />
+
+              {/* Catch-all */}
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </div>
         </BrowserRouter>

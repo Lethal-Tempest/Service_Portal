@@ -31,7 +31,7 @@ export const About = () => {
       <div className="container mx-auto px-4 py-16">
         {/* Header */}
         <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-bold gradient-text mb-6">
+          <h1 className="text-4xl md:text-5xl font-bold text-[#2979FF] mb-6">
             About WorkerConnect
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
@@ -44,7 +44,7 @@ export const About = () => {
         <div className="mb-16">
           <Card className="p-8 card-gradient">
             <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">Our Mission</h2>
-            <p className="text-lg text-gray-700 text-center leading-relaxed">
+            <p className="text-lg text-gray-700 text-center">
               To bridge the gap between skilled workers and customers by providing a transparent, 
               secure, and efficient platform that empowers both parties to achieve their goals. 
               We believe in fair wages for workers and quality services for customers.
@@ -77,15 +77,15 @@ export const About = () => {
           <h2 className="text-3xl font-bold text-gray-900 mb-12">Our Impact</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
-              <div className="text-4xl font-bold gradient-text mb-2">5K+</div>
+              <div className="text-4xl font-bold text-[#2979FF] mb-2">5K+</div>
               <div className="text-gray-600">Verified Workers</div>
             </div>
             <div>
-              <div className="text-4xl font-bold gradient-text mb-2">10K+</div>
+              <div className="text-4xl font-bold text-[#2979FF] mb-2">10K+</div>
               <div className="text-gray-600">Jobs Completed</div>
             </div>
             <div>
-              <div className="text-4xl font-bold gradient-text mb-2">4.9★</div>
+              <div className="text-4xl font-bold text-[#2979FF] mb-2">4.9★</div>
               <div className="text-gray-600">Average Rating</div>
             </div>
           </div>
