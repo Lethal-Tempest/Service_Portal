@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from '../components/ui/select';
 import axios from 'axios';
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 
 export const Search = () => {
   const [mockWorkers, setMockWorkers] = useState([]);
@@ -373,16 +373,17 @@ export const Search = () => {
 
                 {/* Action Buttons */}
                 <div className="flex space-x-2">
-                 <Link to={`/profile/${worker.id || worker._id}`} className="flex-1">
+                  <Link to={`/worker/${worker.id || worker._id}`} className="flex-1">
                     <Button className="flex-1 bg-blue-600 hover:bg-blue-700">View Profile</Button>
-                </Link>
+                  </Link>
+
                   <Button variant="outline" size="sm" className="p-2 text-blue-600 border-blue-200 hover:bg-blue-50" title="Message">
                     <MessageCircle className="w-4 h-4" />
                   </Button>
                   <Button variant="outline" size="sm" className="p-2 text-blue-600 border-blue-200 hover:bg-blue-50" title="Call">
                     <Phone className="w-4 h-4" />
                   </Button>
-                </div>  
+                </div>
               </Card>
             ))}
           </div>

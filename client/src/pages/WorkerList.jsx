@@ -10,7 +10,7 @@ const WorkerList = () => {
         <div
           key={worker.id}
           className="cursor-pointer p-4 border rounded hover:bg-gray-100"
-          onClick={() => navigate(`/profile/${worker.id}`)}
+          onClick={() => navigate(`/worker/${worker._id}`)}
         >
           <img
             src={worker.profilePicture}

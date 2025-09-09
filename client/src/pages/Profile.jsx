@@ -1,3 +1,4 @@
+// src/components/Profile.jsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,8 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Mail, Phone, MapPin, Calendar, Star, Edit, Shield, Award } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
-import profileImage from "@/assets/profile-placeholder.jpg";
 
 const Profile = ({ user, onEditProfile }) => {
   const navigate = useNavigate();
@@ -20,7 +19,8 @@ const Profile = ({ user, onEditProfile }) => {
     );
   }
 
-  const initials = user.name ? user.name.split(" ").map(n => n[0]).join("") : "U";
+  const initials = user.name ? user.name.split(" ").map((n) => n).join("") : "U";
+  const avatarSrc = user.profilePic || user.profilePicture || ""; // support either key
 
   const recentActivities = [
     { id: 1, title: "Plumbing Service Completed", description: "Kitchen sink repair - 2 days ago", status: "Completed" },
@@ -35,13 +35,13 @@ const Profile = ({ user, onEditProfile }) => {
   ];
 
   const stats = [
-    { id: 1, title: "Total Bookings", value: 24 },
-    { id: 2, title: "Completed", value: 22 },
-    { id: 3, title: "Rating", value: 4.8 },
+    { id: 1, title: "Total Bookings", value: user.totalBookings ?? 24 },
+    { id: 2, title: "Completed", value: user.completedBookings ?? 22 },
+    { id: 3, title: "Rating", value: user.rating ?? "—" },
   ];
 
   return (
-    <div className="min-h-screen b0g-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-6">
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -58,11 +58,13 @@ const Profile = ({ user, onEditProfile }) => {
           {/* Profile Info */}
           <div className="lg:col-span-2 space-y-6">
             <Card className="shadow-elegant">
-              <CardHeader className="pb-4"><CardTitle className="text-xl">Personal Information</CardTitle></CardHeader>
+              <CardHeader className="pb-4">
+                <CardTitle className="text-xl">Personal Information</CardTitle>
+              </CardHeader>
               <CardContent className="space-y-6">
                 <div className="flex items-start gap-6">
                   <Avatar className="h-24 w-24 shadow-glow">
-                    <AvatarImage src={profileImage} alt={user.name || "User"} />
+                    <AvatarImage src={avatarSrc} alt={user.name || "User"} />
                     <AvatarFallback className="text-2xl bg-primary text-primary-foreground">
                       {initials}
                     </AvatarFallback>
@@ -71,14 +73,21 @@ const Profile = ({ user, onEditProfile }) => {
                     <div className="flex items-center gap-3">
                       <h2 className="text-2xl font-semibold text-foreground">{user.name || "Unnamed User"}</h2>
                       <Badge variant="outline" className="gap-1 bg-green-500 text-white border-green-300">
-                        <Shield className="h-3 w-3" /> Verified Customer
+                        <Shield className="h-3 w-3" /> {user.role === "worker" ? "Verified Worker" : "Verified Customer"}
                       </Badge>
                     </div>
                     <div className="flex items-center gap-1">
                       <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                       <span className="font-medium text-foreground">{user.rating ?? "—"}</span>
-                      <span className="text-muted-foreground">Customer Rating</span>
+                      <span className="text-muted-foreground">{user.role === "worker" ? "Worker Rating" : "Customer Rating"}</span>
                     </div>
+                    {user.role === "worker" && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <span className="font-medium text-foreground">{user.occupation || "—"}</span>
+                        <span>•</span>
+                        <span>{Array.isArray(user.skills) ? user.skills.join(", ") : user.skills || "—"}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -92,7 +101,62 @@ const Profile = ({ user, onEditProfile }) => {
                 </div>
               </CardContent>
             </Card>
-            {/* ... rest of your activities & stats unchanged ... */}
+
+            {/* Recent Activities */}
+            <Card className="shadow-elegant">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xl">Recent Activity</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {recentActivities.map((a) => (
+                  <div key={a.id} className="flex items-center justify-between p-3 rounded-lg bg-white">
+                    <div className="space-y-1">
+                      <p className="font-medium text-foreground">{a.title}</p>
+                      <p className="text-sm text-muted-foreground">{a.description}</p>
+                    </div>
+                    <Badge variant="secondary">{a.status}</Badge>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Stats & Achievements */}
+          <div className="space-y-6">
+            <Card className="shadow-elegant">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xl">Stats</CardTitle>
+              </CardHeader>
+              <CardContent className="grid grid-cols-3 gap-3">
+                {stats.map((s) => (
+                  <div key={s.id} className="rounded-lg bg-white p-4 text-center">
+                    <p className="text-2xl font-bold text-foreground">{s.value}</p>
+                    <p className="text-xs text-muted-foreground">{s.title}</p>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            <Card className="shadow-elegant">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xl">Achievements</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {achievements.map((ach) => (
+                  <div key={ach.id} className="flex items-center gap-3 rounded-lg bg-white p-3">
+                    {ach.icon}
+                    <div>
+                      <p className="font-medium text-foreground">{ach.title}</p>
+                      <p className="text-sm text-muted-foreground">{ach.description}</p>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            <Button className="w-full" variant="secondary" onClick={() => navigate("/")}>
+              Go Home
+            </Button>
           </div>
         </div>
       </div>
@@ -100,7 +164,7 @@ const Profile = ({ user, onEditProfile }) => {
   );
 };
 
-// ✅ Extracted info row to reduce repetition
+// Small utility component
 const InfoRow = ({ icon, label, value }) => (
   <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-100/50">
     {React.cloneElement(icon, { className: "h-5 w-5 text-primary" })}

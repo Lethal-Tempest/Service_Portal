@@ -62,38 +62,22 @@ export const signup = async (req, res) => {
 
 
 export const signin = async (req, res) => {
-    try {
-        const { email, password } = req.body;
-        const user = await clientModel.findOne({ email });
-        if (!user) {
-            res.json({
-                success: false,
-                message: "User does not exist"
-            })
-        }
-        const match = await bcrypt.compare(password, user.password);
-        if (match) {
-            const token = createToken(user._id);
-            res.json({
-                success: true,
-                message: "User logged in successfully",
-                token
-            })
-        }
-        else {
-            res.json({
-                success: false,
-                message: "Invalid credentials"
-            })
-        }
-    } catch (error) {
-        console.log(error);
-        res.json({
-            success: false,
-            message: error.message
-        })
-    }
-}
+  try {
+    const { email, password } = req.body;
+    const user = await clientModel.findOne({ email });
+    if (!user) return res.status(404).json({ success: false, message: "User does not exist" });
+
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) return res.status(401).json({ success: false, message: "Invalid credentials" });
+
+    const token = createToken(user._id);
+    const { password: _pw, ...safeUser } = user.toObject();
+    return res.json({ success: true, message: "User logged in successfully", token, user: safeUser });
+  } catch (e) {
+    return res.status(500).json({ success: false, message: e.message });
+  }
+};
+
 
 export const getProfile = async (req, res) => {
     try {

@@ -1,117 +1,118 @@
-import axios from 'axios';
-import React, { createContext, useContext, useEffect, useState } from 'react';
+// src/contexts/AuthContext.jsx
+import axios from "axios";
+import React, { createContext, useContext, useState } from "react";
 
 const AuthContext = createContext(undefined);
 
+// Lazy read from localStorage so first render has the user
+const readStoredUser = () => {
+  try {
+    const raw = localStorage.getItem("workerConnect_user");
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+};
+
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  // Initialize once from storage
+  const [user, setUser] = useState(readStoredUser);
 
-  // Load user on app start
-  useEffect(() => {
-    const storedUser = localStorage.getItem('workerConnect_user');
-    if (storedUser) {
-      const parsedUser = JSON.parse(storedUser);
-      setUser(parsedUser);
-
-      // attach token to axios for future requests
-      if (parsedUser?.token) {
-        axios.defaults.headers.common['Authorization'] = `Bearer ${parsedUser.token}`;
-      }
-    }
-  }, []);
+  // Ensure axios Authorization is set when app starts or after login
+  if (user?.token && !axios.defaults.headers.common["Authorization"]) {
+    axios.defaults.headers.common["Authorization"] = `Bearer ${user.token}`;
+  }
 
   const login = async (email, password, role) => {
     if (!email || !password || !role) {
       return { success: false, message: "Email, password, and role are required." };
     }
 
-    let apiUrl = '';
-    if (role === 'customer') {
-      apiUrl = 'http://localhost:5000/api/client/signin';
-    } else if (role === 'worker') {
-      apiUrl = 'http://localhost:5000/api/worker/signin';
-    } else {
+    const apiUrl =
+      role === "customer"
+        ? "http://localhost:5000/api/client/signin"
+        : role === "worker"
+        ? "http://localhost:5000/api/worker/signin"
+        : "";
+
+    if (!apiUrl) {
       return { success: false, message: "Invalid role specified." };
     }
 
     try {
       const response = await axios.post(apiUrl, { email, password });
 
-      if (response.data.success) {
-        const userData = response.data.user || {};
+      if (response.data?.success) {
         const token = response.data.token;
+        const userData = response.data.user || {};
+        // Build the stored user shape
+        const finalUser = { ...userData, role, token };
 
-        const finalUser = {
-          ...userData,
-          role,
-          token
-        };
-
-        // Save user state
+        // Persist
         setUser(finalUser);
+        localStorage.setItem("workerConnect_user", JSON.stringify(finalUser));
 
-        // Save whole user in localStorage
-        localStorage.setItem('workerConnect_user', JSON.stringify(finalUser));
-
-        // Set token for all axios calls
-        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        // Set axios Authorization for all calls
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
         return {
           success: true,
-          message: 'User logged in successfully',
+          message: "User logged in successfully",
           token,
-          user: finalUser
-        };
-      } else {
-        return {
-          success: false,
-          message: response.data.message || 'Login failed.'
+          user: finalUser,
         };
       }
-    } catch (error) {
-      console.error('Login failed:', error.response ? error.response.data : error.message);
+
       return {
         success: false,
-        message: error.response ? error.response.data.message : 'Network error or server unavailable.'
+        message: response.data?.message || "Login failed.",
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: error.response?.data?.message || "Network error or server unavailable.",
       };
     }
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('workerConnect_user');
-    delete axios.defaults.headers.common['Authorization']; // clear token from axios
+    localStorage.removeItem("workerConnect_user");
+    delete axios.defaults.headers.common["Authorization"];
   };
 
   const updateProfile = (updatedData) => {
-    if (!user) return;
-    const updatedUser = { ...user, ...updatedData };
-    setUser(updatedUser);
-    localStorage.setItem('workerConnect_user', JSON.stringify(updatedUser));
+    setUser((prev) => {
+      const next = { ...(prev || {}), ...updatedData };
+      localStorage.setItem("workerConnect_user", JSON.stringify(next));
+      return next;
+    });
   };
 
   const register = async (data, role) => {
-    let apiUrl = '';
-    if (role === 'worker') {
-      apiUrl = 'http://localhost:5000/api/worker/signup';
-    } else {
-      apiUrl = 'http://localhost:5000/api/client/signup';
-    }
+    const apiUrl =
+      role === "worker"
+        ? "http://localhost:5000/api/worker/signup"
+        : "http://localhost:5000/api/client/signup";
 
     try {
       const response = await axios.post(apiUrl, data, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
-      if (response.data.success) {
+      if (response.data?.success) {
         const token = response.data.token;
-        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        // Optional: If API also returns user, you can auto-login:
+        // const userData = response.data.user || {};
+        // const finalUser = { ...userData, role, token };
+        // setUser(finalUser);
+        // localStorage.setItem("workerConnect_user", JSON.stringify(finalUser));
+
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
         return true;
       }
-
       return false;
     } catch (error) {
-      console.error('Registration failed', error.response?.data?.message || error.message);
       return false;
     }
   };
@@ -126,7 +127,7 @@ export const AuthProvider = ({ children }) => {
         login,
         logout,
         updateProfile,
-        register
+        register,
       }}
     >
       {children}
@@ -135,7 +136,7 @@ export const AuthProvider = ({ children }) => {
 };
 
 export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within an AuthProvider');
-  return context;
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used within an AuthProvider");
+  return ctx;
 };

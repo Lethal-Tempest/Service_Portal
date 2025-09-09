@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useParams } from 'react-router-dom';
 import Profile from './Profile';
-import WorkerProfile from './WorkerProfile';
+import WorkerProfile from '../components/WorkerProfile';
 import EditProfile from './EditProfile';
 import { Login } from './Login';
 

@@ -14,8 +14,11 @@ import { Search } from "./pages/Search";
 import { About } from "./pages/About";
 import { Bookings } from "./pages/Bookings";
 import NotFound from "./pages/NotFound";
-import ProfilePage from "./pages/ProfilePage"; 
+import ProfilePage from "./pages/ProfilePage";
 import Profile from './pages/Profile'
+import ProtectedRoute from "./components/ProtectedRoute";
+import ProfileScreen from "./pages/ProfileScreen";
+import WorkerProfilePage from "./pages/WorkerProfilePage";
 
 const queryClient = new QueryClient();
 
@@ -35,9 +38,17 @@ const App = () => (
               <Route path="/register" element={<Register />} />
               <Route path="/search" element={<Search />} />
               <Route path="/bookings" element={<Bookings />} />
+              <Route path="/worker/:workerId" element={<WorkerProfilePage />} />
 
               {/* Profile for logged-in user */}
-              <Route path="/profile" element={<Profile />} />
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute>
+                    <ProfileScreen />
+                  </ProtectedRoute>
+                }
+              />
 
               {/* Profile page for workers by id */}
               <Route path="/profile/:userId" element={<ProfilePage />} />
@@ -53,95 +64,3 @@ const App = () => (
 );
 
 export default App;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// function App() {
-//   const { toast, toasts } = useToast()
-
-//   const handleClick = () => {
-//     toast({
-//       title: "Hello!",
-//       description: "This is a toast notification.",
-//     })
-//   }
-
-//   return (
-//     <div className="p-4">
-//       <button
-//         onClick={handleClick}
-//         className="bg-blue-600 text-white px-4 py-2 rounded"
-//       >
-//         Show Toast
-//       </button>
-
-//       {/* Toast display section */}
-//       <div className="fixed top-4 right-4 space-y-2 z-50">
-//         {toasts.map((t) => (
-//           <div
-//             key={t.id}
-//             className="bg-gray-900 text-white px-4 py-3 rounded shadow-md w-64 animate-fade-in"
-//           >
-//             <strong className="block">{t.title}</strong>
-//             <span className="block text-sm">{t.description}</span>
-//           </div>
-//         ))}
-//       </div>
-//     </div>
-//   )
-// }
-
-// export default App
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
