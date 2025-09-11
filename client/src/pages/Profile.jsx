@@ -1,5 +1,5 @@
 // src/components/Profile.jsx
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -11,6 +11,11 @@ import { Mail, Phone, MapPin, Calendar, Star, Edit, Shield, Award } from "lucide
 const Profile = ({ user, onEditProfile }) => {
   const navigate = useNavigate();
 
+  // ⭐ Local state for review section
+  const [rating, setRating] = useState(0);
+  const [reviewText, setReviewText] = useState("");
+  const [reviews, setReviews] = useState([]);
+
   if (!user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -20,7 +25,7 @@ const Profile = ({ user, onEditProfile }) => {
   }
 
   const initials = user.name ? user.name.split(" ").map((n) => n).join("") : "U";
-  const avatarSrc = user.profilePic || user.profilePicture || ""; // support either key
+  const avatarSrc = user.profilePic || user.profilePicture || "";
 
   const recentActivities = [
     { id: 1, title: "Plumbing Service Completed", description: "Kitchen sink repair - 2 days ago", status: "Completed" },
@@ -29,9 +34,9 @@ const Profile = ({ user, onEditProfile }) => {
   ];
 
   const achievements = [
-    { id: 1, title: "Loyal Customer", description: "20+ bookings completed", color: "yellow-300", icon: <Award className="h-5 w-5 text-yellow-400" /> },
-    { id: 2, title: "Top Reviewer", description: "Helpful reviews provided", color: "blue-100", icon: <Star className="h-5 w-5 text-blue-400" /> },
-    { id: 3, title: "Verified Account", description: "Identity confirmed", color: "gray-100", icon: <Shield className="h-5 w-5 text-gray-400" /> },
+    { id: 1, title: "Loyal Customer", description: "20+ bookings completed", icon: <Award className="h-5 w-5 text-yellow-400" /> },
+    { id: 2, title: "Top Reviewer", description: "Helpful reviews provided", icon: <Star className="h-5 w-5 text-blue-400" /> },
+    { id: 3, title: "Verified Account", description: "Identity confirmed", icon: <Shield className="h-5 w-5 text-gray-400" /> },
   ];
 
   const stats = [
@@ -39,6 +44,15 @@ const Profile = ({ user, onEditProfile }) => {
     { id: 2, title: "Completed", value: user.completedBookings ?? 22 },
     { id: 3, title: "Rating", value: user.rating ?? "—" },
   ];
+
+  const handleSubmitReview = () => {
+    if (!rating) return alert("Please select a rating");
+    const newReview = { rating, text: reviewText || "No comment" };
+    setReviews([...reviews, newReview]);
+    setRating(0);
+    setReviewText("");
+    // 🔗 Here you can send `newReview` to your backend API.
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-6">
@@ -79,7 +93,9 @@ const Profile = ({ user, onEditProfile }) => {
                     <div className="flex items-center gap-1">
                       <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                       <span className="font-medium text-foreground">{user.rating ?? "—"}</span>
-                      <span className="text-muted-foreground">{user.role === "worker" ? "Worker Rating" : "Customer Rating"}</span>
+                      <span className="text-muted-foreground">
+                        {user.role === "worker" ? "Worker Rating" : "Customer Rating"}
+                      </span>
                     </div>
                     {user.role === "worker" && (
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -121,8 +137,9 @@ const Profile = ({ user, onEditProfile }) => {
             </Card>
           </div>
 
-          {/* Stats & Achievements */}
+          {/* Sidebar */}
           <div className="space-y-6">
+            {/* Stats */}
             <Card className="shadow-elegant">
               <CardHeader className="pb-2">
                 <CardTitle className="text-xl">Stats</CardTitle>
@@ -137,6 +154,7 @@ const Profile = ({ user, onEditProfile }) => {
               </CardContent>
             </Card>
 
+            {/* Achievements */}
             <Card className="shadow-elegant">
               <CardHeader className="pb-2">
                 <CardTitle className="text-xl">Achievements</CardTitle>
@@ -153,6 +171,58 @@ const Profile = ({ user, onEditProfile }) => {
                 ))}
               </CardContent>
             </Card>
+
+            {/* ⭐ Customer Reviews Section */}
+            {user.role === "worker" && (
+              <Card className="shadow-elegant">
+                <CardHeader>
+                  <CardTitle className="text-xl flex items-center gap-2">
+                    <Star className="h-5 w-5 text-yellow-400" /> Customer Reviews
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Rating Input */}
+                  <div className="flex gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star
+                        key={star}
+                        className={`h-6 w-6 cursor-pointer ${
+                          star <= rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
+                        }`}
+                        onClick={() => setRating(star)}
+                      />
+                    ))}
+                  </div>
+                  <textarea
+                    className="w-full p-2 border rounded-md text-sm"
+                    rows="3"
+                    placeholder="Write your review..."
+                    value={reviewText}
+                    onChange={(e) => setReviewText(e.target.value)}
+                  />
+                  <Button className="w-full" onClick={handleSubmitReview}>
+                    Submit Review
+                  </Button>
+
+                  {/* Display Submitted Reviews */}
+                  {reviews.length > 0 && (
+                    <div className="space-y-3">
+                      <h4 className="font-medium text-foreground">Previous Reviews</h4>
+                      {reviews.map((r, index) => (
+                        <div key={index} className="rounded-lg bg-white p-3">
+                          <div className="flex items-center gap-1">
+                            {[...Array(r.rating)].map((_, i) => (
+                              <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                            ))}
+                          </div>
+                          <p className="text-sm text-muted-foreground">{r.text}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
 
             <Button className="w-full" variant="secondary" onClick={() => navigate("/")}>
               Go Home

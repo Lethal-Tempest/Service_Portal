@@ -207,6 +207,8 @@ const WorkerProfile = ({ onEditProfile, worker }) => {
           </div>
         </div>
       </div>
+     
+      
     </div>
   );
 };
