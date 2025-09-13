@@ -79,6 +79,16 @@ const workerSchema = new mongoose.Schema({
         default: false,
         required: true,
       },
+      name: {
+        type: String,
+        default: "Anonymous",
+        required: false,
+      },
+      profilePic: {
+        type: String,
+        required: false,
+        default: 'https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg'
+      }
     },
   ],
   aadhar: {

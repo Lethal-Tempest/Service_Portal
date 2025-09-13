@@ -1,5 +1,5 @@
 // src/components/WorkerProfile.jsx
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -8,40 +8,92 @@ import { Separator } from "@/components/ui/separator";
 import {
   Mail, Phone, MapPin, Calendar, User, Briefcase,
   Clock, Shield, DollarSign, FileText, Edit,
-  Building, Users
+  Building, Users, Star
 } from "lucide-react";
-import { useState } from "react";
-import { Star } from "lucide-react";
-// Optional: only if you still want context for "self" vs "by id" cases
-// import { useAuth } from "@/contexts/AuthContext";
+import axios from "axios";
 
 const WorkerProfile = ({ onEditProfile, worker }) => {
-  // If you need to fall back to logged-in user when no worker prop is passed:
-  // const { user: current } = useAuth();
-  // const data = worker || current;
   const data = worker;
-  console.log(data);
 
   const [rating, setRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
   const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [name, setName] = useState('')
+  const [profilePic, setProfilePic] = useState('')
 
-  const handleSubmitReview = () => {
-    if (!rating) return alert("Please select a rating");
-    const newReview = { rating, text: reviewText || "No comment" };
-    setReviews([...reviews, newReview]);
-    setRating(0);
-    setReviewText("");
-    // You can add backend integration here if needed
-  };
+  useEffect(() => {
+    if (data?._id) {
+      fetchReviews();
+    }
+  }, [data?._id]);
+
+  useEffect(()=>{
+    const data = JSON.parse(localStorage.getItem("workerConnect_user"));
+    setName(data.name)
+    setProfilePic(data.profilePic)
+  })
+
+const fetchReviews = async () => {
+  setLoading(true);
+  try {
+    const token = localStorage.getItem("token"); // adjust key if needed
+    const res = await axios.get(`http://localhost:5000/api/worker/${data._id}/reviews`, {
+      headers: {
+        "Content-Type": "application/json",
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+    });
+    const json = res.data;
+    if (json.success) setReviews(json.reviews);
+    else setReviews([]);
+  } catch (e) {
+    console.error("Fetch reviews error:", e);
+    setReviews([]);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+
+  const handleSubmitReview = async () => {
+  if (!rating) {
+    alert("Please select a rating");
+    return;
+  }
+  try {
+    const token = localStorage.getItem("token");
+    const res = await axios.post(
+      `http://localhost:5000/api/worker/${data._id}/addReview`,
+      { rating, comment: reviewText, isAnon: false, name, profilePic },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          ...(token && { "token": `${token}` }),
+        },
+      }
+    );
+    const json = res.data;
+    if (json.success) {
+      setRating(0);
+      setReviewText("");
+      fetchReviews();
+    } else {
+      alert(json.message || "Review submission failed");
+    }
+  } catch (e) {
+    console.error("Submit review error:", e);
+    alert("Error submitting review");
+  }
+};
 
 
   if (!data) return null;
 
-  const initials = data.name ? data.name.split(" ").map(n => n).join("") : "U";
+  const initials = data.name ? data.name.split(" ").map(n => n[0]).join("") : "U";
   const avatarSrc = data.profilePic || "";
 
-  // Map server fields to UI labels
   const mapped = {
     workStatus: data.availability || "Unavailable",
     designation: data.occupation || "—",
@@ -223,9 +275,7 @@ const WorkerProfile = ({ onEditProfile, worker }) => {
           </div>
         </div>
 
-
-      {/* Customer Reviews Section */}
-      {true && (  // You can conditionally render based on worker role if needed
+        {/* Customer Reviews Section */}
         <Card className="shadow-elegant max-w-6xl mx-auto mt-6">
           <CardHeader>
             <CardTitle className="text-xl flex items-center gap-2">
@@ -238,8 +288,7 @@ const WorkerProfile = ({ onEditProfile, worker }) => {
               {[1, 2, 3, 4, 5].map((star) => (
                 <Star
                   key={star}
-                  className={`h-6 w-6 cursor-pointer ${star <= rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
-                    }`}
+                  className={`h-6 w-6 cursor-pointer ${star <= rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`}
                   onClick={() => setRating(star)}
                 />
               ))}
@@ -255,8 +304,10 @@ const WorkerProfile = ({ onEditProfile, worker }) => {
               Submit Review
             </Button>
 
-            {/* Display Submitted Reviews */}
-            {reviews.length > 0 && (
+            {loading && <p>Loading reviews...</p>}
+            {!loading && reviews.length === 0 && <p className="text-muted-foreground">No reviews yet.</p>}
+
+            {!loading && reviews.length > 0 && (
               <div className="space-y-3">
                 <h4 className="font-medium text-foreground">Previous Reviews</h4>
                 {reviews.map((r, index) => (
@@ -266,20 +317,17 @@ const WorkerProfile = ({ onEditProfile, worker }) => {
                         <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                       ))}
                     </div>
-                    <p className="text-sm text-muted-foreground">{r.text}</p>
+                    <p className="text-sm text-muted-foreground">{r.comment || r.text}</p>
+                    <img src={r.profilePic} className="h-8 w-8 rounded-full" />
+                    <p>{r.name}</p>
                   </div>
                 ))}
               </div>
             )}
           </CardContent>
         </Card>
-      )}
-
+      </div>
     </div>
-      
-     
-      
-    </div >
   );
 };
 

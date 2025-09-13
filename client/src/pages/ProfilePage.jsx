@@ -14,8 +14,7 @@ const ProfilePage = () => {
 
   useEffect(() => {
     if (!isAuthenticated) return;
-    console.log("User")
-    console.log(userId);
+
     if (!userId) {
       // Logged-in user's own profile
       setUser(currentUser);

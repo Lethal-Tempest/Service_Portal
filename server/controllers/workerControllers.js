@@ -161,14 +161,22 @@ export const getWorkerById = async (req, res) => {
 export const addReview = async (req, res) => {
   try {
     const { id } = req.params; // worker being reviewed
-    const { rating, comment, isAnon } = req.body;
-    const clientId = req.userId;
+    const { rating, comment, isAnon, name, profilePic } = req.body;
+    const clientId = req.user._id;
 
     if (rating == null || !comment) {
       return res.status(400).json({
         success: false,
         message: 'Rating and comment are required'
       });
+    }
+
+    if (!rating || !comment) {
+      return res.status(400).json({ success: false, message: "Rating and comment are required" });
+    }
+
+    if (!name || !profilePic) {
+      return res.status(400).json({ success: false, message: "Reviewer name and profilePic are required" });
     }
 
     const worker = await workerModel.findById(id);
@@ -181,6 +189,8 @@ export const addReview = async (req, res) => {
       comment,
       clientId,
       isAnon: !!isAnon,
+      name,
+      profilePic,
       date: new Date()
     });
 
@@ -194,7 +204,7 @@ export const addReview = async (req, res) => {
     console.error(error);
     return res.status(500).json({
       success: false,
-      message: error.message
+      message: error
     });
   }
 };

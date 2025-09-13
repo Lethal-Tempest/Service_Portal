@@ -58,11 +58,7 @@ export const Home = () => {
     { number: '100+', label: 'Cities Covered' },
     { number: '4.8', label: 'Average Rating' }
   ];
-
-  useEffect(() => {
-    console.log("Token: ", localStorage?.getItem('token'));
-  }, []);
-
+  
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
