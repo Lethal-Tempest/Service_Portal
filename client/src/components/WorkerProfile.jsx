@@ -10,6 +10,8 @@ import {
   Clock, Shield, DollarSign, FileText, Edit,
   Building, Users
 } from "lucide-react";
+import { useState } from "react";
+import { Star } from "lucide-react";
 // Optional: only if you still want context for "self" vs "by id" cases
 // import { useAuth } from "@/contexts/AuthContext";
 
@@ -19,6 +21,20 @@ const WorkerProfile = ({ onEditProfile, worker }) => {
   // const data = worker || current;
   const data = worker;
   console.log(data);
+
+  const [rating, setRating] = useState(0);
+  const [reviewText, setReviewText] = useState("");
+  const [reviews, setReviews] = useState([]);
+
+  const handleSubmitReview = () => {
+    if (!rating) return alert("Please select a rating");
+    const newReview = { rating, text: reviewText || "No comment" };
+    setReviews([...reviews, newReview]);
+    setRating(0);
+    setReviewText("");
+    // You can add backend integration here if needed
+  };
+
 
   if (!data) return null;
 
@@ -206,10 +222,64 @@ const WorkerProfile = ({ onEditProfile, worker }) => {
             </Card>
           </div>
         </div>
-      </div>
+
+
+      {/* Customer Reviews Section */}
+      {true && (  // You can conditionally render based on worker role if needed
+        <Card className="shadow-elegant max-w-6xl mx-auto mt-6">
+          <CardHeader>
+            <CardTitle className="text-xl flex items-center gap-2">
+              <Star className="h-5 w-5 text-yellow-400" /> Customer Reviews
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Rating Input */}
+            <div className="flex gap-1">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <Star
+                  key={star}
+                  className={`h-6 w-6 cursor-pointer ${star <= rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
+                    }`}
+                  onClick={() => setRating(star)}
+                />
+              ))}
+            </div>
+            <textarea
+              className="w-full p-2 border rounded-md text-sm"
+              rows="3"
+              placeholder="Write your review..."
+              value={reviewText}
+              onChange={(e) => setReviewText(e.target.value)}
+            />
+            <Button className="w-full" onClick={handleSubmitReview}>
+              Submit Review
+            </Button>
+
+            {/* Display Submitted Reviews */}
+            {reviews.length > 0 && (
+              <div className="space-y-3">
+                <h4 className="font-medium text-foreground">Previous Reviews</h4>
+                {reviews.map((r, index) => (
+                  <div key={index} className="rounded-lg bg-white p-3">
+                    <div className="flex items-center gap-1">
+                      {[...Array(r.rating)].map((_, i) => (
+                        <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                      ))}
+                    </div>
+                    <p className="text-sm text-muted-foreground">{r.text}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+    </div>
+      
      
       
-    </div>
+    </div >
   );
 };
 
