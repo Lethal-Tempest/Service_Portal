@@ -38,7 +38,7 @@ const fetchReviews = async () => {
   setLoading(true);
   try {
     const token = localStorage.getItem("token"); // adjust key if needed
-    const res = await axios.get(`http://localhost:5000/api/worker/${data._id}/reviews`, {
+    const res = await axios.get(`https://service-portal-1.onrender.com/api/worker/${data._id}/reviews`, {
       headers: {
         "Content-Type": "application/json",
         ...(token && { Authorization: `Bearer ${token}` }),
@@ -65,7 +65,7 @@ const fetchReviews = async () => {
   try {
     const token = localStorage.getItem("token");
     const res = await axios.post(
-      `http://localhost:5000/api/worker/${data._id}/addReview`,
+      `https://service-portal-1.onrender.com/api/worker/${data._id}/addReview`,
       { rating, comment: reviewText, isAnon: false, name, profilePic },
       {
         headers: {
