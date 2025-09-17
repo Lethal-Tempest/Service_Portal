@@ -311,15 +311,20 @@ const fetchReviews = async () => {
               <div className="space-y-3">
                 <h4 className="font-medium text-foreground">Previous Reviews</h4>
                 {reviews.map((r, index) => (
-                  <div key={index} className="rounded-lg bg-white p-3">
-                    <div className="flex items-center gap-1">
+                  <div key={index} className="rounded-lg bg-white p-3 flex justify-between px-2">
+                    <div>
+                      <div className="flex items-center gap-1">
                       {[...Array(r.rating)].map((_, i) => (
                         <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                       ))}
                     </div>
                     <p className="text-sm text-muted-foreground">{r.comment || r.text}</p>
-                    <img src={r.profilePic} className="h-8 w-8 rounded-full" />
-                    <p>{r.name}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <img src={r.profilePic} className="h-8 w-8 rounded-full" />
+                      <p>{r.name}</p>
+                    </div>
+                    
                   </div>
                 ))}
               </div>
