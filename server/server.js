@@ -21,7 +21,11 @@ mongoose.connect(MONGO_URI)
   .catch(err => console.log(err));
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: 'https://service-portal-noyb.vercel.app',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true,
+}));
 
 app.get('/', (req, res) => {
   res.send('Server is running');
