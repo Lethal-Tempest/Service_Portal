@@ -21,9 +21,10 @@ mongoose.connect(MONGO_URI)
   .catch(err => console.log(err));
 
 app.use(express.json());
+
 const allowedOrigins = [
   'https://service-portal-noyb.vercel.app',
-  'http://localhost:3000',
+  'http://localhost:3000', // dev
 ];
 
 app.use(cors({
@@ -37,6 +38,10 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true,
 }));
+
+// handle preflight
+app.options('*', cors());
+
 
 
 app.get('/', (req, res) => {
