@@ -13,7 +13,7 @@ const WorkerProfilePage = () => {
     let cancelled = false;
     const fetchWorker = async () => {
       try {
-        const { data } = await axios.get(`http://localhost:5000/api/worker/${workerId}`);
+        const { data } = await axios.get(`https://service-portal-1.onrender.com/api/worker/${workerId}`);
         if (!cancelled && data?.success) setWorker(data.worker);
       } catch (e) {
         // optionally show a toast/log

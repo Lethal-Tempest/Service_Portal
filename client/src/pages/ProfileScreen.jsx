@@ -12,8 +12,8 @@ const ProfileScreen = () => {
       if (!user?.token) return;
       const url =
         user.role === "worker"
-          ? "http://localhost:5000/api/worker/profile"
-          : "http://localhost:5000/api/client/profile";
+          ? "https://service-portal-1.onrender.com/api/worker/profile"
+          : "https://service-portal-1.onrender.com/api/client/profile";
       try {
         const { data } = await axios.get(url);
         if (data?.success) {
