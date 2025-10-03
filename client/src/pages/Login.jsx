@@ -76,7 +76,8 @@ export const Login = () => {
           {/* Role Selection */}
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-3">
-              I am a:
+              {/* I am a: */}
+              
             </label>
             <div className="grid grid-cols-2 gap-3">
               <button

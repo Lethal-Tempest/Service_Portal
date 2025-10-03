@@ -58,7 +58,25 @@ export const Home = () => {
     { number: '100+', label: 'Cities Covered' },
     { number: '4.8', label: 'Average Rating' }
   ];
-  
+
+
+  // the user who logged in ok 
+  useEffect(() => {
+  const userStr = localStorage.getItem("workerConnect_user");
+
+  if (userStr) {
+    try {
+      const user = JSON.parse(userStr); // convert string → object
+      console.log(user.name); // access property safely
+    } catch (e) {
+      console.error("Invalid JSON in localStorage:", e);
+    }
+  } else {
+    console.log("No workerConnect_user found in localStorage");
+  }
+}, []);
+
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -88,12 +106,12 @@ export const Home = () => {
                   Find Workers
                 </Button>
               </Link>
-              <Link to="/register?role=worker">
+              {/* <Link to="/register?role=worker">
                 <Button size="lg" variant="outline" className="border-white text-primary hover:bg-white/90 px-8 py-4 text-lg">
                   <Users className="mr-2" />
                   Join as Worker
                 </Button>
-              </Link>
+              </Link> */}
             </div>
           ) : (
             <div className="animate-scale-in">

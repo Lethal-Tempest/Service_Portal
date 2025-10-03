@@ -29,6 +29,9 @@ export const Register = () => {
 
   const [workerData, setWorkerData] = useState({
     ...customerData,
+    secondno:'',
+    secondmail:'',
+    voterid:'',
     profession: '',
     experience: '',
     bio: '',
@@ -111,8 +114,8 @@ export const Register = () => {
     if (workerData.aadharPicFile) {
       formData.append('aadharPic', workerData.aadharPicFile);
     }
-    if (workerData.introVidFile) {
-      formData.append('introVid', workerData.introVidFile);
+    if (workerData.introVideo) {
+      formData.append('introVid', workerData.introVideo);
     }
     if (workerData.previousWorkPicsFiles) {
       workerData.previousWorkPicsFiles.forEach((file) =>
@@ -329,11 +332,11 @@ export const Register = () => {
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Email (Optional)</label>
                 <Input
                   type="email"
-                  value={workerData.email}
-                  onChange={(e) => setWorkerData({...workerData, email: e.target.value})}
+                  value={workerData.secondmail}
+                  onChange={(e) => setWorkerData({...workerData, secondmail: e.target.value})}
                   placeholder="Enter your email"
                   className='w-full bg-white border border-black-200 focus:outline-none focus:border-black'
                   required
@@ -350,6 +353,31 @@ export const Register = () => {
                   required
                 />
               </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Additional Number:</label>
+                <Input
+                  type="tel"
+                  value={workerData.secondno}
+                  onChange={(e) => setWorkerData({...workerData, secondno: e.target.value})}
+                  placeholder="+91 XXXXX XXXXX"
+                  className='w-full bg-white border border-black-200 focus:outline-none focus:border-black'
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Voter Id:</label>
+                <Input
+                  type="text"
+                  value={workerData.voterid}
+                  onChange={(e) => setWorkerData({...workerData, voterid: e.target.value})}
+                  placeholder="Enter the Valid Voter ID"
+                  className='w-full bg-white border border-black-200 focus:outline-none focus:border-black'
+                  required
+                />
+              </div>
+              
             </div>
 
             <div>

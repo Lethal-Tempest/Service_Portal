@@ -6,12 +6,27 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import {
-  Mail, Phone, MapPin, Calendar, User, Briefcase,
-  Clock, Shield, DollarSign, FileText, Edit,
-  Building, Users, Star
+  Mail,
+  Phone,
+  MapPin,
+  Calendar,
+  User,
+  Briefcase,
+  Clock,
+  Shield,
+  DollarSign,
+  FileText,
+  Edit,
+  Building,
+  Users,
+  Star,
 } from "lucide-react";
 import axios from "axios";
+// import { Star } from "lucide-react";
 
+
+
+// Main Component
 const WorkerProfile = ({ onEditProfile, worker }) => {
   const data = worker;
 
@@ -19,8 +34,8 @@ const WorkerProfile = ({ onEditProfile, worker }) => {
   const [reviewText, setReviewText] = useState("");
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [name, setName] = useState('')
-  const [profilePic, setProfilePic] = useState('')
+  const [name, setName] = useState("");
+  const [profilePic, setProfilePic] = useState("");
 
   useEffect(() => {
     if (data?._id) {
@@ -28,76 +43,88 @@ const WorkerProfile = ({ onEditProfile, worker }) => {
     }
   }, [data?._id]);
 
-  useEffect(()=>{
-    const data = JSON.parse(localStorage.getItem("workerConnect_user"));
-    setName(data.name)
-    setProfilePic(data.profilePic)
-  })
+  // ✅ Run only once on mount
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("workerConnect_user"));
+    if (user) {
+      setName(user.name || "");
+      setProfilePic(user.profilePic || "");
+    }
+  }, []);
 
-const fetchReviews = async () => {
-  setLoading(true);
-  try {
-    const token = localStorage.getItem("token"); // adjust key if needed
-    const res = await axios.get(`http://localhost:5000/api/worker/${data._id}/reviews`, {
-      headers: {
-        "Content-Type": "application/json",
-        ...(token && { Authorization: `Bearer ${token}` }),
-      },
-    });
-    const json = res.data;
-    if (json.success) setReviews(json.reviews);
-    else setReviews([]);
-  } catch (e) {
-    console.error("Fetch reviews error:", e);
-    setReviews([]);
-  } finally {
-    setLoading(false);
-  }
-};
-
-
+  const fetchReviews = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get(
+        `http://localhost:5000/api/worker/${data._id}/reviews`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            ...(token && { Authorization: `Bearer ${token}` }),
+          },
+        }
+      );
+      const json = res.data;
+      if (json.success) setReviews(json.reviews);
+      else setReviews([]);
+    } catch (e) {
+      console.error("Fetch reviews error:", e);
+      setReviews([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmitReview = async () => {
-  if (!rating) {
-    alert("Please select a rating");
-    return;
-  }
-  try {
-    const token = localStorage.getItem("token");
-    const res = await axios.post(
-      `http://localhost:5000/api/worker/${data._id}/addReview`,
-      { rating, comment: reviewText, isAnon: false, name, profilePic },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          ...(token && { "token": `${token}` }),
-        },
-      }
-    );
-    const json = res.data;
-    if (json.success) {
-      setRating(0);
-      setReviewText("");
-      fetchReviews();
-    } else {
-      alert(json.message || "Review submission failed");
+    if (!rating) {
+      alert("Please select a rating");
+      return;
     }
-  } catch (e) {
-    console.error("Submit review error:", e);
-    alert("Error submitting review");
-  }
-};
-
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.post(
+        `http://localhost:5000/api/worker/${data._id}/addReview`,
+        { rating, comment: reviewText, isAnon: false, name, profilePic },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            ...(token && { Authorization: `Bearer ${token}` }), // ✅ consistent
+          },
+        }
+      );
+      const json = res.data;
+      if (json.success) {
+        setRating(0);
+        setReviewText("");
+        fetchReviews();
+      } else {
+        alert(json.message || "Review submission failed");
+      }
+    } catch (e) {
+      console.error("Submit review error:", e);
+      alert("Error submitting review");
+    }
+  };
 
   if (!data) return null;
 
-  const initials = data.name ? data.name.split(" ").map(n => n[0]).join("") : "U";
+  const initials = data.name
+    ? data.name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+    : "U";
   const avatarSrc = data.profilePic || "";
 
   const mapped = {
     workStatus: data.availability || "Unavailable",
     designation: data.occupation || "—",
-    department: data.skills ? (Array.isArray(data.skills) ? data.skills.join(", ") : data.skills) : "—",
+    department: data.skills
+      ? Array.isArray(data.skills)
+        ? data.skills.join(", ")
+        : data.skills
+      : "—",
     workLocation: data.location || "—",
     joiningDate: data.experience ? `${data.experience} yrs` : "—",
     shiftTiming: data.shiftTiming || "—",
@@ -113,8 +140,12 @@ const fetchReviews = async () => {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Worker Profile</h1>
-            <p className="text-muted-foreground">Manage your professional information</p>
+            <h1 className="text-3xl font-bold text-foreground">
+              Worker Profile
+            </h1>
+            <p className="text-muted-foreground">
+              Manage your professional information
+            </p>
           </div>
           <Button variant="outline" className="gap-2" onClick={onEditProfile}>
             <Edit className="h-4 w-4" />
@@ -143,13 +174,17 @@ const fetchReviews = async () => {
                   </Avatar>
                   <div className="flex-1 space-y-2">
                     <div className="flex items-center gap-3">
-                      <h2 className="text-2xl font-semibold text-foreground">{data.name || "Unnamed Worker"}</h2>
+                      <h2 className="text-2xl font-semibold text-foreground">
+                        {data.name || "Unnamed Worker"}
+                      </h2>
                       <Badge variant="outline" className="gap-1 bg-gray-100">
                         <Shield className="h-3 w-3" />
                         {mapped.workStatus}
                       </Badge>
                     </div>
-                    <p className="text-lg text-primary font-medium">{mapped.designation}</p>
+                    <p className="text-lg text-primary font-medium">
+                      {mapped.designation}
+                    </p>
                     <p className="text-muted-foreground">{mapped.department}</p>
                   </div>
                 </div>
@@ -159,8 +194,16 @@ const fetchReviews = async () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Field icon={<Mail />} label="Email" value={data.email} />
                   <Field icon={<Phone />} label="Phone" value={data.phone} />
-                  <Field icon={<MapPin />} label="Location" value={data.location} />
-                  <Field icon={<Calendar />} label="Date of Birth" value={data.dateOfBirth} />
+                  <Field
+                    icon={<MapPin />}
+                    label="Location"
+                    value={data.location}
+                  />
+                  <Field
+                    icon={<Calendar />}
+                    label="Date of Birth"
+                    value={data.dateOfBirth}
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -177,31 +220,65 @@ const fetchReviews = async () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-4">
                     <div className="flex items-center gap-3">
-                      <Badge variant="outline" className="w-fit">Worker ID</Badge>
+                      <Badge variant="outline" className="w-fit">
+                        Worker ID
+                      </Badge>
                       <span className="font-medium">{data._id || "—"}</span>
                     </div>
-                    <Detail icon={<Building />} title="Work Location" value={mapped.workLocation} />
-                    <Detail icon={<Calendar />} title="Experience" value={mapped.joiningDate} />
+                    <Detail
+                      icon={<Building />}
+                      title="Work Location"
+                      value={mapped.workLocation}
+                    />
+                    <Detail
+                      icon={<Calendar />}
+                      title="Experience"
+                      value={mapped.joiningDate}
+                    />
                   </div>
                   <div className="space-y-4">
-                    <Detail icon={<Clock />} title="Shift Timing" value={mapped.shiftTiming} />
-                    <Detail icon={<Users />} title="Supervisor" value={mapped.supervisor} />
-                    <Detail icon={<Shield />} title="Last Login" value={mapped.lastLogin} />
+                    <Detail
+                      icon={<Clock />}
+                      title="Shift Timing"
+                      value={mapped.shiftTiming}
+                    />
+                    <Detail
+                      icon={<Users />}
+                      title="Supervisor"
+                      value={mapped.supervisor}
+                    />
+                    <Detail
+                      icon={<Shield />}
+                      title="Last Login"
+                      value={mapped.lastLogin}
+                    />
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Recent Tasks - placeholder */}
+            {/* Recent Tasks */}
             <Card className="shadow-elegant">
               <CardHeader>
                 <CardTitle className="text-xl">Recent Tasks</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <TaskRow title="Kitchen Sink Repair" status="Completed" hint="Completed - 2 days ago" />
-                  <TaskRow title="Bathroom Plumbing Installation" status="In Progress" hint="In Progress - Started today" />
-                  <TaskRow title="Water Heater Maintenance" status="Scheduled" hint="Scheduled - Tomorrow at 2:00 PM" />
+                  <TaskRow
+                    title="Kitchen Sink Repair"
+                    status="Completed"
+                    hint="Completed - 2 days ago"
+                  />
+                  <TaskRow
+                    title="Bathroom Plumbing Installation"
+                    status="In Progress"
+                    hint="In Progress - Started today"
+                  />
+                  <TaskRow
+                    title="Water Heater Maintenance"
+                    status="Scheduled"
+                    hint="Scheduled - Tomorrow at 2:00 PM"
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -216,16 +293,24 @@ const fetchReviews = async () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="text-center p-4 rounded-lg bg-gradient-primary">
-                  <div className="text-2xl font-bold text-primary-foreground">{mapped.workStatus === "True" ? "Active" : "Inactive"}</div>
+                  <div className="text-2xl font-bold text-primary-foreground">
+                    {mapped.workStatus === "True" ? "Active" : "Inactive"}
+                  </div>
                   <p className="text-primary-foreground/80">Current Status</p>
                 </div>
                 <div className="space-y-3">
                   <div className="text-center p-3 rounded-lg bg-blue-100/50">
-                    <div className="text-lg font-bold text-foreground">{data.tasksThisMonth ?? 15}</div>
-                    <p className="text-sm text-muted-foreground">Tasks This Month</p>
+                    <div className="text-lg font-bold text-foreground">
+                      {data.tasksThisMonth ?? 15}
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Tasks This Month
+                    </p>
                   </div>
                   <div className="text-center p-3 rounded-lg bg-blue-100/50">
-                    <div className="text-lg font-bold text-foreground">{data.rating ?? "4.9"}</div>
+                    <div className="text-lg font-bold text-foreground">
+                      {data.rating ?? "4.9"}
+                    </div>
                     <p className="text-sm text-muted-foreground">Rating</p>
                   </div>
                 </div>
@@ -243,11 +328,15 @@ const fetchReviews = async () => {
               <CardContent className="space-y-3">
                 <div className="p-3 rounded-lg bg-yellow-300/10 border border-yellow-100">
                   <p className="font-medium text-foreground">Price</p>
-                  <p className="text-sm text-muted-foreground">{mapped.salary}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {mapped.salary}
+                  </p>
                 </div>
                 <div className="p-3 rounded-lg bg-blue-50">
                   <p className="font-medium text-foreground">Payment Cycle</p>
-                  <p className="text-sm text-muted-foreground">{mapped.paymentCycle}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {mapped.paymentCycle}
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -276,61 +365,127 @@ const fetchReviews = async () => {
         </div>
 
         {/* Customer Reviews Section */}
-        <Card className="shadow-elegant max-w-6xl mx-auto mt-6">
-          <CardHeader>
-            <CardTitle className="text-xl flex items-center gap-2">
-              <Star className="h-5 w-5 text-yellow-400" /> Customer Reviews
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Rating Input */}
-            <div className="flex gap-1">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <Star
-                  key={star}
-                  className={`h-6 w-6 cursor-pointer ${star <= rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`}
-                  onClick={() => setRating(star)}
+        <Card className="shadow-elegant max-w-6xl mx-auto mt-6 border border-gray-200">
+  {/* Header */}
+  <CardHeader className="bg-gradient-to-r from-blue-100 via-white to-blue-50 rounded-t-2xl">
+    <CardTitle className="text-xl flex items-center gap-2 font-semibold text-gray-800">
+      <Star className="h-5 w-5 text-yellow-300" /> Customer Reviews
+    </CardTitle>
+  </CardHeader>
+
+  <CardContent className="space-y-6">
+    {/* Rating Input */}
+    <div className="space-y-2 mt-4">
+      <p className="text-sm text-gray-600">Leave your rating:</p>
+      <div className="flex gap-1">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <Star
+            key={star}
+            className={`h-7 w-7 cursor-pointer transition-transform hover:scale-110 ${
+              star <= rating
+                ? "fill-yellow-400 text-yellow-400 drop-shadow-sm"
+                : "text-gray-300"
+            }`}
+            onClick={() => setRating(star)}
+          />
+        ))}
+      </div>
+    </div>
+
+    {/* Review Text */}
+    <textarea
+      className="w-full p-3 border rounded-xl text-sm shadow-sm focus:ring-2 focus:ring-blue-300 outline-none resize-none"
+      rows="3"
+      placeholder="Share your experience..."
+      value={reviewText}
+      onChange={(e) => setReviewText(e.target.value)}
+    />
+
+    {/* Submit Button */}
+    <Button
+      className="w-full rounded-xl bg-blue-400 hover:bg-blue-500 text-white shadow-md transition"
+      onClick={handleSubmitReview}
+    >
+      Submit Review
+    </Button>
+
+    {/* Reviews Section */}
+    {loading && <p>Loading reviews...</p>}
+    {!loading && reviews.length === 0 && (
+      <p className="text-muted-foreground">No reviews yet.</p>
+    )}
+
+    {!loading && reviews.length > 0 && (
+      <div className="space-y-4">
+        <h4 className="font-medium text-foreground">Previous Reviews</h4>
+
+        {reviews.map((r, index) => (
+          <div
+            key={index}
+            className="rounded-lg bg-white p-4 border border-gray-200 shadow-sm"
+          >
+            {/* Reviewer Info */}
+            <div className="flex items-center gap-2 mb-2">
+              {r.profilePic ? (
+                <img
+                  src={r.profilePic}
+                  alt="Reviewer"
+                  className="h-8 w-8 rounded-full border"
                 />
-              ))}
+              ) : (
+                <div className="h-8 w-8 rounded-full bg-gray-200" />
+              )}
+              <p className="text-gray-700 font-medium">{r.name}</p>
             </div>
-            <textarea
-              className="w-full p-2 border rounded-md text-sm"
-              rows="3"
-              placeholder="Write your review..."
-              value={reviewText}
-              onChange={(e) => setReviewText(e.target.value)}
-            />
-            <Button className="w-full" onClick={handleSubmitReview}>
-              Submit Review
-            </Button>
 
-            {loading && <p>Loading reviews...</p>}
-            {!loading && reviews.length === 0 && <p className="text-muted-foreground">No reviews yet.</p>}
-
-            {!loading && reviews.length > 0 && (
-              <div className="space-y-3">
-                <h4 className="font-medium text-foreground">Previous Reviews</h4>
-                {reviews.map((r, index) => (
-                  <div key={index} className="rounded-lg bg-white p-3">
-                    <div className="flex items-center gap-1">
-                      {[...Array(r.rating)].map((_, i) => (
-                        <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      ))}
-                    </div>
-                    <p className="text-sm text-muted-foreground">{r.comment || r.text}</p>
-                    <img src={r.profilePic} className="h-8 w-8 rounded-full" />
-                    <p>{r.name}</p>
-                  </div>
+            {/* Rating + Title */}
+            <div className="flex items-center gap-2">
+              <div className="flex items-center">
+                {[...Array(r.rating)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className="h-4 w-4 fill-yellow-400 text-yellow-400"
+                  />
                 ))}
               </div>
-            )}
-          </CardContent>
-        </Card>
+              {r.title && (
+                <p className="font-semibold text-gray-800">{r.title}</p>
+              )}
+            </div>
+
+            {/* Date + Verified */}
+            <p className="text-xs text-gray-500 mt-1">
+                Reviewed in India on{" "}
+                {r.date
+                  ? new Date(r.date).toLocaleString("en-IN", {
+                      day: "2-digit",
+                      month: "long",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: true,
+                    })
+                  : "Unknown Date"}
+              </p>
+
+
+            {/* Comment */}
+            <p className="text-sm text-gray-700 mt-2 leading-relaxed">
+              {r.comment || r.text}
+            </p>
+          </div>
+        ))}
+      </div>
+    )}
+  </CardContent>
+</Card>
+
       </div>
     </div>
   );
 };
 
+// Helper Components
 const Field = ({ icon, label, value }) => (
   <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-100/50">
     {React.cloneElement(icon, { className: "h-5 w-5 text-primary" })}
@@ -353,12 +508,23 @@ const Detail = ({ icon, title, value }) => (
 
 const TaskRow = ({ title, status, hint }) => (
   <div className="flex items-center gap-4 p-3 rounded-lg border">
-    <div className={`h-2 w-2 rounded-full ${status === "Completed" ? "bg-primary" : status === "In Progress" ? "bg-yellow-300" : "bg-muted-foreground"}`}></div>
+    <div
+      className={`h-2 w-2 rounded-full ${
+        status === "Completed"
+          ? "bg-primary"
+          : status === "In Progress"
+          ? "bg-yellow-300"
+          : "bg-muted-foreground"
+      }`}
+    ></div>
     <div className="flex-1">
       <p className="font-medium text-foreground">{title}</p>
       <p className="text-sm text-muted-foreground">{hint}</p>
     </div>
-    <Badge variant={status === "Completed" ? "outline" : "secondary"} className={status !== "Completed" ? "bg-slate-100 text-black" : ""}>
+    <Badge
+      variant={status === "Completed" ? "outline" : "secondary"}
+      className={status !== "Completed" ? "bg-slate-100 text-black" : ""}
+    >
       {status}
     </Badge>
   </div>
