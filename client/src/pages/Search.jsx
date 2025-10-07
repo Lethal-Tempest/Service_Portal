@@ -57,7 +57,7 @@ export const Search = () => {
     const fetchWorkers = async () => {
       setIsLoading(true);
       try {
-        const response = await axios.get('https://service-portal-1.onrender.com/api/users/');
+        const response = await axios.get('http://localhost:5000/api/users/');
         // Assuming backend returns { workers: [...] }
         // Adjust if backend returns array directly with response.data
         const workersData = response.data.workers || response.data || [];

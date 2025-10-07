@@ -30,9 +30,9 @@ export const AuthProvider = ({ children }) => {
 
     const apiUrl =
       role === "customer"
-        ? "https://service-portal-1.onrender.com/api/client/signin"
+        ? "http://localhost:5000/api/client/signin"
         : role === "worker"
-        ? "https://service-portal-1.onrender.com/api/worker/signin"
+        ? "http://localhost:5000/api/worker/signin"
         : "";
 
     if (!apiUrl) {
@@ -92,8 +92,8 @@ export const AuthProvider = ({ children }) => {
   const register = async (data, role) => {
     const apiUrl =
       role === "worker"
-        ? "https://service-portal-1.onrender.com/api/worker/signup"
-        : "https://service-portal-1.onrender.com/api/client/signup";
+        ? "http://localhost:5000/api/worker/signup"
+        : "http://localhost:5000/api/client/signup";
 
     try {
       const response = await axios.post(apiUrl, data, {

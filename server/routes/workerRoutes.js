@@ -26,9 +26,9 @@ workerRouter.put(
     { name: 'introVid', maxCount: 1 },
   ]),
     editWorkerProfile);
+workerRouter.get('/profile', authUser, getProfile);
 workerRouter.get('/:id/reviews', authUser, getReviews);
 workerRouter.post('/:id/addReview', authUser, addReview);
-workerRouter.get('/profile', authUser, getProfile);   // 👈 add this
-workerRouter.get('/:id', getWorkerById);              // 👈 add this (public)
+workerRouter.get('/:id', getWorkerById); // keep this last           // 👈 add this (public)
 
 export default workerRouter

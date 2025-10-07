@@ -20,7 +20,7 @@ const ProfilePage = () => {
       setUser(currentUser);
     } else {
       // Fetch a worker profile by ID
-      fetch(`https://service-portal-1.onrender.com/api/worker/${userId}`, {
+      fetch(`http://localhost:5000/api/worker/${userId}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`, // send JWT if required

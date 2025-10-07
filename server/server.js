@@ -21,26 +21,29 @@ mongoose.connect(MONGO_URI)
   .catch(err => console.log(err));
 
 app.use(express.json());
+app.use(cors());
 
-const allowedOrigins = [
-  'https://service-portal-noyb.vercel.app',
-  'http://localhost:3000', // dev
-];
+// CORS configuration
 
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true,
-}));
+// const allowedOrigins = [
+//   'https://service-portal-noyb.vercel.app',
+//   'http://localhost:3000', // dev
+// ];
 
-// handle preflight
-app.options('*', cors());
+// app.use(cors({
+//   origin: (origin, callback) => {
+//     if (!origin || allowedOrigins.includes(origin)) {
+//       callback(null, true);
+//     } else {
+//       callback(new Error('Not allowed by CORS'));
+//     }
+//   },
+//   methods: ['GET', 'POST', 'PUT', 'DELETE'],
+//   credentials: true,
+// }));
+
+// // handle preflight
+// app.options('*', cors());
 
 
 
