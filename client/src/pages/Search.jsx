@@ -22,6 +22,7 @@ import {
 } from '../components/ui/select';
 import axios from 'axios';
 import { Link } from "react-router-dom";
+import { useAuth } from '@/contexts/AuthContext';
 
 export const Search = () => {
   const [mockWorkers, setMockWorkers] = useState([]);
@@ -31,6 +32,8 @@ export const Search = () => {
   const [minRating, setMinRating] = useState(0);
   const [sortBy, setSortBy] = useState('rating');
   const [isLoading, setIsLoading] = useState(false);
+    const { user } = useAuth() || {};
+    const isWorker = user?.role === 'worker';
 
   // Professions and locations filters
   const professions = [
@@ -374,13 +377,17 @@ export const Search = () => {
                 {/* Action Buttons */}
                 <div className="flex space-x-2">
                   <Link to={`/worker/${worker.id || worker._id}`} className="flex-1">
-                    <Button className="flex-1 bg-blue-600 hover:bg-blue-700">View Profile</Button>
+                    <Button className={`flex-1 ${isWorker ? 'bg-gradient-to-r from-blue-500 to-green-500': 'bg-blue-500 hover:bg-blue-600'}  `}>
+                      View Profile
+                    </Button>
                   </Link>
 
-                  <Button variant="outline" size="sm" className="p-2 text-blue-600 border-blue-200 hover:bg-blue-50" title="Message">
+
+                  <Button variant="outline" size="sm" className={`p-2 ${isWorker ? 'text-green-500 border-green-400 hover:bg-gradient-to-r from-blue-500 to-green-500 ' : 'text-blue-600 border-blue-200 hover:bg-blue-50'}`} title="Message">
                     <MessageCircle className="w-4 h-4" />
                   </Button>
-                  <Button variant="outline" size="sm" className="p-2 text-blue-600 border-blue-200 hover:bg-blue-50" title="Call">
+                  <Button variant="outline" size="sm" className={`p-2 ${isWorker ? 'text-green-500 border-green-400 hover:bg-gradient-to-r from-blue-500 to-green-500 ' : 'text-blue-600 border-blue-200 hover:bg-blue-50'}`}
+                   title="Call">
                     <Phone className="w-4 h-4" />
                   </Button>
                 </div>

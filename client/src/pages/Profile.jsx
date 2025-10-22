@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Mail, Phone, MapPin, Calendar, Star, Edit, Shield, Award } from "lucide-react";
 
+
+
 const Profile = ({ user, onEditProfile }) => {
   const navigate = useNavigate();
 
@@ -25,7 +27,7 @@ const Profile = ({ user, onEditProfile }) => {
   const recentActivities = [
     { id: 1, title: "Plumbing Service Completed", description: "Kitchen sink repair - 2 days ago", status: "Completed" },
     { id: 2, title: "House Cleaning Scheduled", description: "Weekly cleaning - Tomorrow at 10:00 AM", status: "Scheduled" },
-    { id: 3, title: "Electrical Work Completed", description: "Light fixture installation - 1 week ago", status: "Completed" },
+    { id: 3, title: "Electrical Work Completed", description: "Light fixture installation - 1 week ago", status: "Progress" },
   ];
 
   const achievements = [
@@ -50,7 +52,8 @@ const Profile = ({ user, onEditProfile }) => {
             <p className="text-muted-foreground">Manage your account information and preferences</p>
           </div>
           <Button variant="outline" className="gap-2" onClick={onEditProfile}>
-            <Edit className="h-4 w-4" /> Edit Profile
+            <Edit className="h-4 w-4" /> 
+            Edit Profile
           </Button>
         </div>
 
@@ -109,17 +112,30 @@ const Profile = ({ user, onEditProfile }) => {
               <CardHeader className="pb-2">
                 <CardTitle className="text-xl">Recent Activity</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
-                {recentActivities.map((a) => (
-                  <div key={a.id} className="flex items-center justify-between p-3 rounded-lg bg-white">
-                    <div className="space-y-1">
-                      <p className="font-medium text-foreground">{a.title}</p>
-                      <p className="text-sm text-muted-foreground">{a.description}</p>
-                    </div>
-                    <Badge variant="secondary">{a.status}</Badge>
-                  </div>
-                ))}
-              </CardContent>
+                  <CardContent className="space-y-3">
+                    {recentActivities.map((a) => {
+                      // Assign background color based on status
+                      let badgeColor = "";
+
+                      if (a.status === "Completed") {
+                        badgeColor = "bg-green-500 text-white"; // ✅ green
+                      } else if (a.status === "Scheduled") {
+                        badgeColor = "bg-orange-400 text-white"; // 🟠 orange
+                      } else if (a.status === "Progress") {
+                        badgeColor = "bg-red-500 text-white"; // 🔴 red
+                      }
+
+                      return (
+                        <div key={a.id} className="flex items-center justify-between p-3 rounded-lg bg-white">
+                          <div className="space-y-1">
+                            <p className="font-medium text-foreground">{a.title}</p>
+                            <p className="text-sm text-muted-foreground">{a.description}</p>
+                          </div>
+                          <Badge className={badgeColor}>{a.status}</Badge>
+                        </div>
+                      );
+                    })}
+                  </CardContent>
             </Card>
           </div>
 
@@ -157,9 +173,18 @@ const Profile = ({ user, onEditProfile }) => {
                 ))}
               </CardContent>
             </Card>
-            <Button className="w-full" variant="secondary" onClick={() => navigate("/")}>
-              Go Home
-            </Button>
+              <Button
+                className={`w-full ${
+                  user.role === "worker"
+                    ? "bg-gradient-to-r from-blue-500 to-green-500 text-white hover:opacity-90"
+                    : ""
+                }`}
+                variant={user.role === "worker" ? "default" : "secondary"}
+                onClick={() => navigate("/")}
+              >
+                Go Home
+              </Button>
+
           </div>
         </div>
       </div>

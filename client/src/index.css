@@ -4,6 +4,7 @@
 /* Dark mode toggle */
 @custom-variant dark (&:is(.dark *));
 
+/* Theme variables */
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -172,4 +173,17 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
+
+  /* 🔹 Worker custom colors for Tailwind usage */
+  .bg-workerPrimary { background-color: #4985EC; }
+  .bg-workerSecondary { background-color: #49AD98; }
+  .bg-workerAccent { background-color: #C4A983; }
+  .bg-workerBg { background-color: #FBFBFB; }
+  .bg-workerLight { background-color: #CDDFe0; }
+  .text-workerPrimary { color: #4985EC; }
+  .text-workerSecondary { color: #49AD98; }
+  .text-workerAccent { color: #C4A983; }
+  .text-workerBg { color: #FBFBFB; }
+  .text-workerLight { color: #CDDFe0; }
+  .text-workerText { color: #435851; }
 }

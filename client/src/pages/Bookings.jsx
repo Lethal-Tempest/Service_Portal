@@ -45,34 +45,51 @@ export const Bookings = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold gradient-text mb-2">
-            {user?.role === 'customer' ? 'My Bookings' : 'Job Requests'}
-          </h1>
-          <p className="text-gray-600">
-            {user?.role === 'customer'
-              ? 'Track and manage your service requests'
-              : 'View and manage incoming job requests'}
-          </p>
-        </div>
+          <div className="container mx-auto px-4 py-8">
+                  <div className="mb-8">
+            <h1
+              className={`text-3xl md:text-4xl font-bold mb-2 ${
+                user?.role === 'worker'
+                  ? 'text-black'
+                  : 'gradient-text'
+              }`}
+            >
+              {user?.role === 'customer' ? 'My Bookings' : 'Job Requests'}
+            </h1>
+
+            <p
+              className={`${
+                user?.role === 'worker' ? 'text-gray-500' : 'text-gray-600'
+              }`}
+            >
+              {user?.role === 'customer'
+                ? 'Track and manage your service requests'
+                : 'View and manage incoming job requests'}
+            </p>
+          </div>
+
 
         <div className="mb-8">
-          <div className="flex flex-wrap gap-2 p-1 bg-white rounded-lg shadow-sm border">
-            {tabs.map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                  activeTab === tab.key
-                    ? 'bg-primary text-white shadow-sm'
-                    : 'text-gray-600 hover:text-primary hover:bg-primary/5'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
+            <div className="flex flex-wrap gap-2 p-1 bg-white rounded-lg shadow-sm border">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key)}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all
+                    ${
+                      activeTab === tab.key
+                        ? user?.role === 'worker'
+                          ? 'bg-gradient-to-r from-blue-500 to-green-500 text-white shadow-sm'
+                          : 'bg-primary text-white shadow-sm'
+                        : user?.role === 'worker'
+                          ? 'text-gray-600 hover:text-green-600 hover:bg-green-50'
+                          : 'text-gray-600 hover:text-primary hover:bg-primary/5'
+                    }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
         </div>
 
         <div className="space-y-6">

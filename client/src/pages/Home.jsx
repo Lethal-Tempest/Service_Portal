@@ -9,6 +9,7 @@ import { useAuth } from '../contexts/AuthContext';
 
 export const Home = () => {
   const { isAuthenticated, user } = useAuth();
+  const isWorker = user?.role === 'worker';
 
   const services = [
     { name: 'Plumbing', icon: '🔧', workers: 156 },
@@ -81,50 +82,52 @@ export const Home = () => {
     <div className="min-h-screen">
       {/* Hero Section */}
       <section className="relative bg-gradient-hero py-20 px-4 overflow-hidden">
-        <div className="absolute inset-0">
-          <img 
-            src="/src/assets/hero-workers.jpg" 
-            alt="Professional workers" 
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/80 via-primary/60 to-primary/40"></div>
-        </div>
-        <div className="relative max-w-7xl mx-auto text-center text-white">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-fade-in">
-            Find Trusted
-            <span className="block text-secondary">Service Workers</span>
-          </h1>
-          <p className="text-xl md:text-2xl mb-8 opacity-90 animate-slide-up">
-            Connect with skilled professionals for all your home service needs
-          </p>
-          
-          {!isAuthenticated ? (
-            <div className="flex flex-col sm:flex-row gap-4 justify-center animate-scale-in">
-              <Link to="/register?role=customer">
-                <Button size="lg" className="bg-white text-primary hover:bg-white/90 px-8 py-4 text-lg">
-                  <Search className="mr-2" />
-                  Find Workers
-                </Button>
-              </Link>
-              {/* <Link to="/register?role=worker">
-                <Button size="lg" variant="outline" className="border-white text-primary hover:bg-white/90 px-8 py-4 text-lg">
-                  <Users className="mr-2" />
-                  Join as Worker
-                </Button>
-              </Link> */}
-            </div>
-          ) : (
-            <div className="animate-scale-in">
-              <Link to="/search">
-                <Button size="lg" className="bg-white text-primary hover:bg-white/90 px-8 py-4 text-lg">
-                  <Search className="mr-2" />
-                  Find Workers Now
-                </Button>
-              </Link>
-            </div>
-          )}
-        </div>
-      </section>
+  <div className="absolute inset-0">
+    <img 
+      src="/src/assets/hero-workers.jpg" 
+      alt="Professional workers" 
+      className="w-full h-full object-cover"
+    />
+    {/* Conditional gradient overlay */}
+    <div
+      className={`absolute inset-0 ${
+        isWorker
+          ? 'bg-gradient-to-r from-blue-500/80 via-blue-400/60 to-green-500/40'
+          : 'bg-gradient-to-r from-primary/80 via-primary/60 to-primary/40'
+      }`}
+    ></div>
+  </div>
+  
+  <div className="relative max-w-7xl mx-auto text-center text-white">
+    <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-fade-in">
+      Find Trusted
+      <span className="block text-secondary">Service Workers</span>
+    </h1>
+    <p className="text-xl md:text-2xl mb-8 opacity-90 animate-slide-up">
+      Connect with skilled professionals for all your home service needs
+    </p>
+
+    {!isAuthenticated ? (
+      <div className="flex flex-col sm:flex-row gap-4 justify-center animate-scale-in">
+        <Link to="/register?role=customer">
+          <Button size="lg" className="bg-white text-primary hover:bg-white/90 px-8 py-4 text-lg">
+            <Search className="mr-2" />
+            Find Workers
+          </Button>
+        </Link>
+      </div>
+    ) : (
+      <div className="animate-scale-in">
+        <Link to="/search">
+          <Button size="lg" className="bg-white text-primary hover:bg-white/90 px-8 py-4 text-lg">
+            <Search className="mr-2" />
+            Find Workers Now
+          </Button>
+        </Link>
+      </div>
+    )}
+  </div>
+</section>
 
       {/* Stats Section */}
       <section className="py-16 bg-white">
@@ -132,10 +135,16 @@ export const Home = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
               <div key={index} className="text-center">
-                <div className="text-3xl md:text-4xl font-bold text-primary mb-2">
-                  {stat.number}
-                </div>
-                <div className="text-gray-600 text-sm md:text-base">
+                <div
+                    className={`text-3xl md:text-4xl font-bold mb-2 ${
+                      isWorker
+                        ? 'bg-gradient-to-r from-blue-500 to-green-500 bg-clip-text text-transparent'
+                        : 'text-primary'
+                    }`}
+                  >
+                    {stat.number}
+                  </div>
+                <div className={`text-sm md:text-base text-gray-600`}>
                   {stat.label}
                 </div>
               </div>
@@ -178,7 +187,8 @@ export const Home = () => {
 
           <div className="text-center mt-8">
             <Link to="/search">
-              <Button className="btn-primary">
+              <Button 
+              className={` ${isWorker ? ' text-black bg-white hover:bg-green-600' : 'btn-primary'}`}>
                 View All Services
                 <ArrowRight className="ml-2 w-4 h-4" />
               </Button>
@@ -229,7 +239,7 @@ export const Home = () => {
                   {worker.experience} experience
                 </div>
 
-                <Button className="w-full btn-outline">
+                <Button className={`w-full btn-outline ${isWorker ? 'bg-gradient-to-r from-blue-500 to-green-500 hover:bg-gradient-to-r from-blue-600 to-green-600' : ''}`}>
                   View Profile
                 </Button>
               </Card>
@@ -252,7 +262,9 @@ export const Home = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center">
-              <div className="w-16 h-16 bg-[#2979FF] rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4
+               ${isWorker ? 'bg-gradient-to-r from-blue-500 to-green-500' : 'bg-[#2979FF]'}`}
+              >
                 <Search className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-xl font-semibold mb-3">1. Search & Browse</h3>
@@ -262,7 +274,8 @@ export const Home = () => {
             </div>
 
             <div className="text-center">
-              <div className="w-16 h-16 bg-[#FFA733] rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4
+               ${isWorker ? 'bg-[#2979FF]' : 'bg-[#FFA733] '}`}>
                 <Users className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-xl font-semibold mb-3">2. Connect & Book</h3>
@@ -272,7 +285,8 @@ export const Home = () => {
             </div>
 
             <div className="text-center">
-              <div className="w-16 h-16 bg-[#2979FF] rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4
+               ${isWorker ? 'bg-gradient-to-r from-blue-500 to-green-500' : 'bg-[#2979FF]'}`}>
                 <CheckCircle className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-xl font-semibold mb-3">3. Get Work Done</h3>
@@ -285,7 +299,8 @@ export const Home = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-[#2979FF]">
+      <section
+      className={`py-16 ${isWorker ? 'bg-blue-400' : 'bg-[#2979FF]'}`}>
         <div className="max-w-4xl mx-auto text-center px-4">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
             Ready to Get Started?
