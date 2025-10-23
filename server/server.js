@@ -59,3 +59,13 @@ app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
 
+/*
+
+interfaces should be different for both
+customer credibility/rating
+join as worker button should be removed
+email id is not required (dummy if required)
+2 phone numbers
+voter id should be too (additional ids)
+
+*/

@@ -57,7 +57,7 @@ const WorkerProfile = ({ onEditProfile, worker }) => {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.get(
-        `http://localhost:5000/api/worker/${data._id}/reviews`,
+        `https://service-portal-hppp.onrender.com/api/worker/${data._id}/reviews`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -84,7 +84,7 @@ const WorkerProfile = ({ onEditProfile, worker }) => {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.post(
-        `http://localhost:5000/api/worker/${data._id}/addReview`,
+        `https://service-portal-hppp.onrender.com/api/worker/${data._id}/addReview`,
         { rating, comment: reviewText, isAnon: false, name, profilePic },
         {
           headers: {
