@@ -93,7 +93,7 @@ export const Home = () => {
       className={`absolute inset-0 ${
         isWorker
           ? 'bg-gradient-to-r from-blue-500/80 via-blue-400/60 to-green-500/40'
-          : 'bg-gradient-to-r from-primary/80 via-primary/60 to-primary/40'
+          : 'bg-gradient-to-r from-primary/80 via-primary/60 to-primary/40'f
       }`}
     ></div>
   </div>
