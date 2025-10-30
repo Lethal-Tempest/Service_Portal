@@ -84,7 +84,7 @@ export const Home = () => {
       <section className="relative bg-gradient-hero py-20 px-4 overflow-hidden">
   <div className="absolute inset-0">
     <img 
-      src="hero-workers.jpg" 
+      src="/src/assets/hero-workers.jpg" 
       alt="Professional workers" 
       className="w-full h-full object-cover"
     />
@@ -170,10 +170,10 @@ export const Home = () => {
               <Card key={index} className="p-6 text-center hover:shadow-lg transition-all duration-300 card-hover cursor-pointer group relative overflow-hidden">
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-300">
                   {service.name === 'Electrical' && (
-                    <img src="tech-support.jpg" alt="Tech Support" className="w-full h-full object-cover" />
+                    <img src="/src/assets/tech-support.jpg" alt="Tech Support" className="w-full h-full object-cover" />
                   )}
                   {service.name === 'Carpentry' && (
-                    <img src="design-services.jpg" alt="Design Services" className="w-full h-full object-cover" />
+                    <img src="/src/assets/design-services.jpg" alt="Design Services" className="w-full h-full object-cover" />
                   )}
                 </div>
                 <div className="relative z-10">
