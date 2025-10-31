@@ -19,30 +19,32 @@ export const Navigation = () => {
   };
 
   const isWorker = user?.role === 'worker';
+  const isCustomer = user?.role === 'customer';
+
+  // ✅ Added “Add Worker” visible only for customers
   const navLinks = [
     { path: '/', label: 'Home' },
     { path: '/about', label: 'About' },
     { path: '/search', label: 'Find Workers' },
     ...(isAuthenticated
       ? [
+          ...(isCustomer ? [{ path: '/add-worker', label: 'Add Worker' }] : []),
           {
             path: '/bookings',
-            label:
-              user?.role === 'customer' ? 'My Bookings' : 'Job Requests',
+            label: user?.role === 'customer' ? 'My Bookings' : 'Job Requests',
           },
           { path: '/profile', label: 'Profile' },
         ]
       : []),
   ];
 
-  const isActivePath = (path) => {
-    return location.pathname === path;
-  };
+  const isActivePath = (path) => location.pathname === path;
 
   return (
     <nav className="bg-gray-50 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
+          {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
             <div
               className={`w-10 h-10 rounded-lg flex items-center justify-center ${
@@ -62,6 +64,7 @@ export const Navigation = () => {
             </span>
           </Link>
 
+          {/* Desktop Navbar */}
           <div className="hidden md:flex items-center space-x-8">
             {navLinks.map((link) => (
               <Link
@@ -82,6 +85,7 @@ export const Navigation = () => {
             ))}
           </div>
 
+          {/* User Menu (Desktop) */}
           <div className="hidden md:flex items-center space-x-4">
             {isAuthenticated ? (
               <div className="relative">
@@ -136,6 +140,7 @@ export const Navigation = () => {
             )}
           </div>
 
+          {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -146,6 +151,7 @@ export const Navigation = () => {
           </div>
         </div>
 
+        {/* Mobile Menu */}
         {isMenuOpen && (
           <div className="md:hidden border-t border-gray-200 py-4">
             <div className="flex flex-col space-y-2">

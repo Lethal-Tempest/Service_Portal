@@ -396,7 +396,7 @@ export const Home = () => {
                 </Button>
               </Link>
               <Link to="/register?role=worker">
-                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-primary px-8 py-4">
+                <Button size="lg" variant="outline" className="border-white text-primary hover:bg-white hover:text-primary px-8 py-4">
                   Become a Worker
                 </Button>
               </Link>

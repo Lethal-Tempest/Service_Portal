@@ -19,6 +19,7 @@ import Profile from './pages/Profile'
 import ProtectedRoute from "./components/ProtectedRoute";
 import ProfileScreen from "./pages/ProfileScreen";
 import WorkerProfilePage from "./pages/WorkerProfilePage";
+import AddWorker from "./pages/AddWorkerForm";
 
 const queryClient = new QueryClient();
 
@@ -31,31 +32,62 @@ const App = () => (
         <BrowserRouter>
           <div className="min-h-screen">
             <Navigation />
-            <Routes>
-              <Route path="/" element={<Home />} />
+            
+            {/* <Routes> */}
+              {/* <Route path="/" element={<Home />} />
               <Route path="/about" element={<About />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/search" element={<Search />} />
               <Route path="/bookings" element={<Bookings />} />
-              <Route path="/worker/:workerId" element={<WorkerProfilePage />} />
+              <Route path="/worker/:workerId" element={<WorkerProfilePage />} /> */}
 
               {/* Profile for logged-in user */}
-              <Route
+              {/* <Route
                 path="/profile"
                 element={
                   <ProtectedRoute>
                     <ProfileScreen />
                   </ProtectedRoute>
                 }
-              />
+              /> */}
 
               {/* Profile page for workers by id */}
-              <Route path="/profile/:userId" element={<ProfilePage />} />
+              {/* <Route path="/profile/:userId" element={<ProfilePage />} /> */}
 
               {/* Catch-all */}
-              <Route path="*" element={<NotFound />} />
+              {/* <Route path="*" element={<NotFound />} /> */}
+            {/* </Routes> */}
+            
+            <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/search" element={<Search />} />
+                <Route path="/bookings" element={<Bookings />} />
+                <Route path="/worker/:workerId" element={<WorkerProfilePage />} />
+
+                {/* Profile for logged-in user */}
+                <Route
+                  path="/profile"
+                  element={
+                    <ProtectedRoute>
+                      <ProfileScreen />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Profile page for workers by id */}
+                <Route path="/profile/:userId" element={<ProfilePage />} />
+
+                {/* ✅ New route for customer adding temporary workers */}
+                <Route path="/add-worker" element={<AddWorker />} />
+
+                {/* Catch-all */}
+                <Route path="*" element={<NotFound />} />
             </Routes>
+
           </div>
         </BrowserRouter>
       </TooltipProvider>
