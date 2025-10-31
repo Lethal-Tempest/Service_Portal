@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Search, Users, CheckCircle, Star, ArrowRight, MapPin, Clock, Shield } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Search, Users, CheckCircle, ArrowRight, MapPin, Clock, Shield, X } from 'lucide-react';
 
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
@@ -10,15 +10,28 @@ import { useAuth } from '../contexts/AuthContext';
 export const Home = () => {
   const { isAuthenticated, user } = useAuth();
   const isWorker = user?.role === 'worker';
+  const navigate = useNavigate();
+
+  const [showServicesModal, setShowServicesModal] = useState(false);
 
   const services = [
     { name: 'Plumbing', icon: '🔧', workers: 156 },
     { name: 'Electrical', icon: '⚡', workers: 243 },
     { name: 'Carpentry', icon: '🔨', workers: 189 },
-    { name: 'Cleaning', icon: '🧹', workers: 298 },
+    { name: 'House Cleaner', icon: '🏠', workers: 210 },
     { name: 'Painting', icon: '🎨', workers: 167 },
-    { name: 'Gardening', icon: '🌱', workers: 134 }
+    { name: 'Gardener', icon: '🌿', workers: 95 },
+    { name: 'Cleaning', icon: '🧹', workers: 298 },   // keep if you also support this in Search
+    { name: 'Cooking', icon: '🌱', workers: 134 },
   ];
+
+  const openServices = () => setShowServicesModal(true);
+  const closeServices = () => setShowServicesModal(false);
+
+  const handleSelectService = (serviceName) => {
+    navigate(`/search?profession=${encodeURIComponent(serviceName)}`);
+    closeServices();
+  };
 
   const featuredWorkers = [
     {
@@ -61,73 +74,70 @@ export const Home = () => {
   ];
 
 
-  // the user who logged in ok 
   useEffect(() => {
-  const userStr = localStorage.getItem("workerConnect_user");
-
-  if (userStr) {
-    try {
-      const user = JSON.parse(userStr); // convert string → object
-      console.log(user.name); // access property safely
-    } catch (e) {
-      console.error("Invalid JSON in localStorage:", e);
+    const userStr = localStorage.getItem('workerConnect_user');
+    if (userStr) {
+      try {
+        const u = JSON.parse(userStr);
+        console.log(u.name);
+      } catch (e) {
+        console.error('Invalid JSON in localStorage:', e);
+      }
+    } else {
+      console.log('No workerConnect_user found in localStorage');
     }
-  } else {
-    console.log("No workerConnect_user found in localStorage");
-  }
-}, []);
+  }, []);
 
 
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
       <section className="relative bg-gradient-hero py-20 px-4 overflow-hidden">
-  <div className="absolute inset-0">
-    <img 
-      src="/src/assets/hero-workers.jpg" 
-      alt="Professional workers" 
-      className="w-full h-full object-cover"
-    />
-    {/* Conditional gradient overlay */}
-    <div
-      className={`absolute inset-0 ${
-        isWorker
-          ? 'bg-gradient-to-r from-blue-500/80 via-blue-400/60 to-green-500/40'
-          : 'bg-gradient-to-r from-primary/80 via-primary/60 to-primary/40'
-      }`}
-    ></div>
-  </div>
-  
-  <div className="relative max-w-7xl mx-auto text-center text-white">
-    <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-fade-in">
-      Find Trusted
-      <span className="block text-secondary">Service Workers</span>
-    </h1>
-    <p className="text-xl md:text-2xl mb-8 opacity-90 animate-slide-up">
-      Connect with skilled professionals for all your home service needs
-    </p>
+        <div className="absolute inset-0">
+          <img
+            src="/src/assets/hero-workers.jpg"
+            alt="Professional workers"
+            className="w-full h-full object-cover"
+          />
+          {/* Conditional gradient overlay */}
+          <div
+            className={`absolute inset-0 ${isWorker
+              ? 'bg-gradient-to-r from-blue-500/80 via-blue-400/60 to-green-500/40'
+              : 'bg-gradient-to-r from-primary/80 via-primary/60 to-primary/40'
+              }`}
+          ></div>
+        </div>
 
-    {!isAuthenticated ? (
-      <div className="flex flex-col sm:flex-row gap-4 justify-center animate-scale-in">
-        <Link to="/register?role=customer">
-          <Button size="lg" className="bg-white text-primary hover:bg-white/90 px-8 py-4 text-lg">
-            <Search className="mr-2" />
-            Find Workers
-          </Button>
-        </Link>
-      </div>
-    ) : (
-      <div className="animate-scale-in">
-        <Link to="/search">
-          <Button size="lg" className="bg-white text-primary hover:bg-white/90 px-8 py-4 text-lg">
-            <Search className="mr-2" />
-            Find Workers Now
-          </Button>
-        </Link>
-      </div>
-    )}
-  </div>
-</section>
+        <div className="relative max-w-7xl mx-auto text-center text-white">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-fade-in">
+            Find Trusted
+            <span className="block text-secondary">Service Workers</span>
+          </h1>
+          <p className="text-xl md:text-2xl mb-8 opacity-90 animate-slide-up">
+            Connect with skilled professionals for all your home service needs
+          </p>
+
+          {!isAuthenticated ? (
+            <div className="flex flex-col sm:flex-row gap-4 justify-center animate-scale-in">
+              <Link to="/register?role=customer">
+                <Button size="lg" className="bg-white text-primary hover:bg-white/90 px-8 py-4 text-lg">
+                  <Search className="mr-2" />
+                  Find Workers
+                </Button>
+              </Link>
+            </div>
+          ) : (
+            <div className="animate-scale-in">
+              <Link to="/search">
+                <Button size="lg" className="bg-white text-primary hover:bg-white/90 px-8 py-4 text-lg">
+                  <Search className="mr-2" />
+                  Find Workers Now
+                </Button>
+              </Link>
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* Stats Section */}
       <section className="py-16 bg-white">
@@ -136,14 +146,13 @@ export const Home = () => {
             {stats.map((stat, index) => (
               <div key={index} className="text-center">
                 <div
-                    className={`text-3xl md:text-4xl font-bold mb-2 ${
-                      isWorker
-                        ? 'bg-gradient-to-r from-blue-500 to-green-500 bg-clip-text text-transparent'
-                        : 'text-primary'
+                  className={`text-3xl md:text-4xl font-bold mb-2 ${isWorker
+                    ? 'bg-gradient-to-r from-blue-500 to-green-500 bg-clip-text text-transparent'
+                    : 'text-primary'
                     }`}
-                  >
-                    {stat.number}
-                  </div>
+                >
+                  {stat.number}
+                </div>
                 <div className={`text-sm md:text-base text-gray-600`}>
                   {stat.label}
                 </div>
@@ -153,7 +162,6 @@ export const Home = () => {
         </div>
       </section>
 
-      {/* Services Section */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
@@ -165,9 +173,30 @@ export const Home = () => {
             </p>
           </div>
 
+          {/* 6 professions grid (clickable) */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-            {services.map((service, index) => (
-              <Card key={index} className="p-6 text-center hover:shadow-lg transition-all duration-300 card-hover cursor-pointer group relative overflow-hidden">
+            {services.slice(0, 6).map((service, index) => (
+              <Card
+                key={index}
+                onClick={() => {
+                  // If your Search expects 'Plumber' but card shows 'Plumbing',
+                  // map it here to ensure exact selection.
+                  const mapForSearch = {
+                    Plumbing: 'Plumber',
+                    Electrical: 'Electrician',
+                    Carpentry: 'Carpenter',
+                    Painting: 'Painter',
+                    Gardener: 'Gardener',
+                    'House Cleaner': 'House Cleaner',
+                    Cleaning: 'House Cleaner',
+                    gardening: 'gardening',
+                    Cooking: 'Cook',
+                  };
+                  const q = mapForSearch[service.name] || service.name;
+                  navigate(`/search?profession=${encodeURIComponent(q)}`);
+                }}
+                className="p-6 text-center hover:shadow-lg transition-all duration-300 card-hover cursor-pointer group relative overflow-hidden"
+              >
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-300">
                   {service.name === 'Electrical' && (
                     <img src="/src/assets/tech-support.jpg" alt="Tech Support" className="w-full h-full object-cover" />
@@ -185,17 +214,67 @@ export const Home = () => {
             ))}
           </div>
 
+          {/* Button below grid */}
           <div className="text-center mt-8">
-            <Link to="/search">
-              <Button 
-              className={` ${isWorker ? ' text-black bg-white hover:bg-green-600' : 'btn-primary'}`}>
-                View All Services
-                <ArrowRight className="ml-2 w-4 h-4" />
-              </Button>
-            </Link>
+            <Button
+              onClick={openServices}
+              className={`${isWorker ? ' text-black bg-white hover:bg-green-600' : 'btn-primary'}`}
+            >
+              View All Services
+              <ArrowRight className="ml-2 w-4 h-4" />
+            </Button>
           </div>
         </div>
       </section>
+
+      {/* Services Modal */}
+      {showServicesModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/50" onClick={closeServices} />
+          <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-3xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-semibold">All Services</h3>
+              <button onClick={closeServices} className="p-2 rounded hover:bg-gray-100">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {services.map((s) => (
+                <button
+                  key={s.name}
+                  onClick={() => {
+                    const mapForSearch = {
+                      Plumbing: 'Plumber',
+                      Electrical: 'Electrician',
+                      Carpentry: 'Carpenter',
+                      Painting: 'Painter',
+                      Gardener: 'Gardener',
+                      'House Cleaner': 'House Cleaner',
+                      Cleaning: 'House Cleaner',
+                      gardening: 'gardening',
+                    };
+                    const q = mapForSearch[s.name] || s.name;
+                    navigate(`/search?profession=${encodeURIComponent(q)}`);
+                    closeServices();
+                  }}
+                  className="border rounded-lg p-3 hover:shadow group text-left"
+                >
+                  <div className="text-2xl">{s.icon}</div>
+                  <div className="font-medium mt-1 group-hover:text-blue-600">{s.name}</div>
+                  <div className="text-xs text-gray-500">{s.workers} workers</div>
+                </button>
+              ))}
+            </div>
+            <div className="mt-6 text-right">
+              <Button variant="outline" onClick={closeServices}>
+                Close
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
 
       {/* Featured Workers */}
       <section className="py-16 bg-white">
@@ -300,7 +379,7 @@ export const Home = () => {
 
       {/* CTA Section */}
       <section
-      className={`py-16 ${isWorker ? 'bg-blue-400' : 'bg-[#2979FF]'}`}>
+        className={`py-16 ${isWorker ? 'bg-blue-400' : 'bg-[#2979FF]'}`}>
         <div className="max-w-4xl mx-auto text-center px-4">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
             Ready to Get Started?
@@ -308,7 +387,7 @@ export const Home = () => {
           <p className="text-xl text-white/90 mb-8">
             Join thousands of satisfied customers and skilled workers
           </p>
-          
+
           {!isAuthenticated ? (
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/register?role=customer">

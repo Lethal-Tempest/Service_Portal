@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, User, LogOut } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../ui/button';
+import HeaderLoginDropdown from './HeaderLoginDropdown';
 
 export const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -131,16 +132,7 @@ export const Navigation = () => {
                 )}
               </div>
             ) : (
-              <div className="flex items-center space-x-3">
-                <Link to="/login">
-                  <Button
-                    variant="ghost"
-                    className="text-gray-700 hover:text-primary"
-                  >
-                    Login
-                  </Button>
-                </Link>
-              </div>
+              <HeaderLoginDropdown />
             )}
           </div>
 

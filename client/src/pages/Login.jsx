@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Eye, EyeOff, User, Briefcase } from 'lucide-react';
 import { Button } from '../components/ui/button';
@@ -8,10 +8,9 @@ import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../hooks/use-toast';
 
 export const Login = () => {
-  const [searchParams] = useSearchParams();
-  const [selectedRole, setSelectedRole] = useState(
-    searchParams.get('role') || 'customer'
-  );
+  const [searchParams, setSearchParams] = useSearchParams();
+  const roleFromUrl = searchParams.get('role') || 'customer';
+  const [selectedRole, setSelectedRole] = useState(roleFromUrl);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -21,16 +20,27 @@ export const Login = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  // Keep selectedRole synchronized with the URL query
+  useEffect(() => {
+    if (selectedRole !== roleFromUrl) {
+      setSelectedRole(roleFromUrl);
+    }
+  }, [roleFromUrl, selectedRole]); // React to query changes so UI updates immediately [web:117]
+
+  const switchRole = (role) => {
+    // Update both local state and URL search params
+    setSelectedRole(role);
+    const next = new URLSearchParams(searchParams);
+    next.set('role', role);
+    setSearchParams(next, { replace: true }); // avoid history spam on toggles [web:116]
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      // Call login from AuthContext passing email, password and selectedRole
-      // I've renamed 'response' to 'result' for clarity
       const result = await login(email, password, selectedRole);
-
-      // Access 'success' directly from the result object
       if (result.success) {
         toast({
           title: 'Welcome back!',
@@ -40,7 +50,6 @@ export const Login = () => {
       } else {
         toast({
           title: 'Login failed',
-          // Access 'message' directly from the result object
           description: result.message,
           variant: 'destructive',
         });
@@ -57,7 +66,6 @@ export const Login = () => {
     }
   };
 
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
@@ -73,33 +81,34 @@ export const Login = () => {
         </div>
 
         <Card className="p-6 card-gradient shadow-xl">
-          {/* Role Selection */}
+          {/* Compact Role Selector */}
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-3">
-              {/* I am a: */}
-              
+              I am a:
             </label>
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
-                onClick={() => setSelectedRole('customer')}
+                onClick={() => switchRole('customer')}
                 className={`p-3 rounded-lg border-2 transition-all flex flex-col items-center space-y-2 ${
                   selectedRole === 'customer'
                     ? 'border-primary bg-primary/5 text-primary'
                     : 'border-gray-200 hover:border-gray-300 text-gray-600'
                 }`}
+                aria-pressed={selectedRole === 'customer'}
               >
                 <User className="w-6 h-6" />
                 <span className="text-sm font-medium">Customer</span>
               </button>
               <button
                 type="button"
-                onClick={() => setSelectedRole('worker')}
+                onClick={() => switchRole('worker')}
                 className={`p-3 rounded-lg border-2 transition-all flex flex-col items-center space-y-2 ${
                   selectedRole === 'worker'
                     ? 'border-primary bg-primary/5 text-primary'
                     : 'border-gray-200 hover:border-gray-300 text-gray-600'
                 }`}
+                aria-pressed={selectedRole === 'worker'}
               >
                 <Briefcase className="w-6 h-6" />
                 <span className="text-sm font-medium">Worker</span>
@@ -135,12 +144,13 @@ export const Login = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
                   required
-                  className="w-full  bg-white border border-black-200"
+                  className="w-full bg-white border border-black-200"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
