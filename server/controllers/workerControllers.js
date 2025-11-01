@@ -1,125 +1,86 @@
-import validator from 'validator';
+// controllers/workerControllers.js (append these)
+import workerModel from '../models/workerModel.js';
+import { sendOTPEmail } from '../utils/mailer.js';
+import { isEmail, isIndianMobile, generateOTP, otpExpiryDate } from '../utils/authHelpers.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import workerModel from '../models/workerModel.js';
-import { v2 as cloudinary } from 'cloudinary';
 
-const createToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET);
-}
-
-export const signup = async (req, res) => {
+// Verify email OTP
+export const verifyEmail = async (req, res) => {
   try {
-    const {
-      name, email, password, phone, location,
-      occupation, skills, experience, availability,
-      bio, aadhar, price
-    } = req.body;
+    const { email, otp } = req.body;
+    if (!isEmail(email) || !otp) {
+      return res.status(400).json({ success: false, message: 'Email and OTP required' });
+    }
+    const user = await workerModel.findOne({ email }).select('+emailOTP +emailOTPExpires');
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+    if (user.emailVerified) return res.json({ success: true, message: 'Email already verified' });
 
-    const profilePic = req.files?.profilePic?.[0];
-    const previousWorkPics = req.files?.previousWorkPics || [];
-    const aadharPic = req.files?.aadharPic?.[0];
-    const introVid = req.files?.introVid?.[0];
-
-    // Validate email, password and uniqueness
-    const exists = await workerModel.findOne({ email });
-    if (exists) {
-      return res.status(409).json({ success: false, message: 'User already exists' });
+    if (!user.emailOTP || !user.emailOTPExpires) {
+      return res.status(400).json({ success: false, message: 'No OTP found, please resend' });
+    }
+    if (String(user.emailOTP) !== String(otp)) {
+      return res.status(400).json({ success: false, message: 'Invalid OTP' });
+    }
+    if (new Date() > new Date(user.emailOTPExpires)) {
+      return res.status(400).json({ success: false, message: 'OTP expired' });
     }
 
-    if (!validator.isEmail(email)) {
-      return res.status(400).json({ success: false, message: 'Invalid email' });
-    }
+    user.emailVerified = true;
+    user.emailOTP = undefined;
+    user.emailOTPExpires = undefined;
+    await user.save();
 
-    if (!password || password.length < 8) {
-      return res.status(400).json({ success: false, message: 'Password must be at least 8 characters' });
-    }
-
-    // Upload profilePic if provided, else use default
-    let profilePicUrl = 'https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg';
-    if (profilePic) {
-      const profilePicRes = await cloudinary.uploader.upload(profilePic.path, { resource_type: 'image' });
-      profilePicUrl = profilePicRes.secure_url || profilePicUrl;
-    }
-
-    // Upload previous work pics
-    let previousWorkPicsUrl = [];
-    if (previousWorkPics.length > 0) {
-      previousWorkPicsUrl = await Promise.all(
-        previousWorkPics.map(async (image) => {
-          const result = await cloudinary.uploader.upload(image.path, { resource_type: 'image' });
-          return result.secure_url;
-        })
-      );
-    }
-
-    // Upload aadhar
-    let aadharPicUrl = '';
-    if (aadharPic) {
-      const aadharRes = await cloudinary.uploader.upload(aadharPic.path, { resource_type: 'image' });
-      aadharPicUrl = aadharRes.secure_url || aadharPicUrl;
-    }
-
-    // Upload intro video
-    let introVidUrl = null;
-    if (introVid) {
-      const introVidRes = await cloudinary.uploader.upload(introVid.path, { resource_type: 'video' });
-      introVidUrl = introVidRes.secure_url;
-    }
-
-    // Prepare safe values
-    const finalAvailability = availability ? 'True' : 'False';
-    const finalBio = bio || '';
-
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    const user = new workerModel({
-      name,
-      email,
-      password: hashedPassword,
-      phone,
-      location,
-      occupation,
-      skills,
-      experience,
-      availability: finalAvailability,
-      bio: finalBio,
-      aadhar,
-      price,
-      profilePic: profilePicUrl,
-      previousWorkPicsUrl,
-      aadharPicUrl,
-      introVidUrl
-    });
-
-    const newUser = await user.save();
-    const token = createToken(newUser._id);
-
-    return res.status(201).json({
-      success: true,
-      message: 'User registered successfully',
-      token
-    });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      success: false,
-      message: error.message
-    });
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+    const { password, emailOTP, emailOTPExpires, ...safe } = user.toObject();
+    return res.json({ success: true, message: 'Email verified', token, user: safe });
+  } catch (e) {
+    return res.status(500).json({ success: false, message: e.message });
   }
 };
 
-
-
-export const signin = async (req, res) => {
+// Resend email OTP
+export const resendEmailOTP = async (req, res) => {
   try {
-    const { email, password } = req.body || {};
-    if (!email || !password) {
-      return res.status(400).json({ success: false, message: 'Email and password required' });
+    const { email } = req.body;
+    if (!isEmail(email)) {
+      return res.status(400).json({ success: false, message: 'Valid email required' });
+    }
+    const user = await workerModel.findOne({ email }).select('+emailOTP +emailOTPExpires');
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+    if (user.emailVerified) {
+      return res.status(400).json({ success: false, message: 'Email already verified' });
     }
 
-    const user = await workerModel.findOne({ email });
+    const otp = generateOTP();
+    user.emailOTP = otp;
+    user.emailOTPExpires = otpExpiryDate(10);
+    await user.save();
+
+    await sendOTPEmail(email, otp);
+    return res.json({ success: true, message: 'OTP resent to email' });
+  } catch (e) {
+    return res.status(500).json({ success: false, message: e.message });
+  }
+};
+
+// Update worker signin to accept identifier
+export const signin = async (req, res) => {
+  try {
+    const { identifier, password } = req.body || {};
+    if (!identifier || !password) {
+      return res.status(400).json({ success: false, message: 'Identifier and password required' });
+    }
+
+    const query = isEmail(identifier)
+      ? { email: identifier.toLowerCase().trim() }
+      : isIndianMobile(identifier) ? { phone: String(identifier).replace(/\D/g, '') } : null;
+
+    if (!query) {
+      return res.status(400).json({ success: false, message: 'Enter valid email or Indian phone' });
+    }
+
+    const user = await workerModel.findOne(query).select('+password');
     if (!user) {
       return res.status(404).json({ success: false, message: 'User Not Found' });
     }
@@ -129,18 +90,23 @@ export const signin = async (req, res) => {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
-    const token = createToken(user._id);
+    if (!user.emailVerified) {
+      return res.status(403).json({ success: false, message: 'Email not verified' });
+    }
+
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+    const { password: _pw, ...safeUser } = user.toObject();
     return res.json({
       success: true,
       message: 'User logged in successfully',
       token,
-      user   // 👈 include user details
+      user: safeUser
     });
   } catch (error) {
-    console.error(error);
     return res.status(500).json({ success: false, message: error.message });
   }
 };
+
 
 export const getWorkerById = async (req, res) => {
   try {
