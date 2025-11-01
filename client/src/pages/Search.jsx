@@ -23,12 +23,8 @@ import {
 import axios from 'axios';
 import { Link } from "react-router-dom";
 import { useAuth } from '@/contexts/AuthContext';
-import { useLocation, useNavigate } from 'react-router-dom';
 
 export const Search = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const normalize = (s) => (s || '').toString().trim().toLowerCase();
   const [mockWorkers, setMockWorkers] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProfession, setSelectedProfession] = useState('all');
@@ -36,20 +32,8 @@ export const Search = () => {
   const [minRating, setMinRating] = useState(0);
   const [sortBy, setSortBy] = useState('rating');
   const [isLoading, setIsLoading] = useState(false);
-  const { user } = useAuth() || {};
-  const isWorker = user?.role === 'worker';
-
-  const PROFESSION_ALIASES = {
-    cleaning: 'House Cleaner',
-    electrician: 'Electrician',
-    plumber: 'Plumber',
-    plumbing: 'Plumber',           // add this to cover the “Plumbing” label
-    carpentry: 'Carpenter',
-    painter: 'Painter',
-    cooking: 'Cook',
-    Gardener: 'Gardener',
-  };
-
+    const { user } = useAuth() || {};
+    const isWorker = user?.role === 'worker';
 
   // Professions and locations filters
   const professions = [
@@ -60,7 +44,6 @@ export const Search = () => {
     'Carpenter',
     'Painter',
     'Gardener',
-    'Cook',
   ];
   const locations = [
     'all',
@@ -72,43 +55,15 @@ export const Search = () => {
     'Hyderabad',
   ];
 
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const raw = params.get('profession');
-    if (!raw) return;
-
-    // Try exact match first
-    const exact = professions.find(p => p === raw);
-    if (exact) {
-      setSelectedProfession(exact);
-      return;
-    }
-
-    // Try case-insensitive/alias match
-    const norm = normalize(raw);
-    const aliased = PROFESSION_ALIASES[norm];
-    if (aliased && professions.includes(aliased)) {
-      setSelectedProfession(aliased);
-      return;
-    }
-
-    // Try fuzzy contains (e.g., “house cleaner” vs “House Cleaner”)
-    const loose = professions.find(p => normalize(p) === norm);
-    if (loose) setSelectedProfession(loose);
-  }, [location.search]);  // IMPORTANT: rerun when URL changes
-
-
   // Fetch workers data once on mount
   useEffect(() => {
     const fetchWorkers = async () => {
       setIsLoading(true);
       try {
-        const { data } = await axios.get('http://localhost:5000/api/users/');
-        let workersData;
-        if (Array.isArray(data)) workersData = data;
-        else if (Array.isArray(data?.workers)) workersData = data.workers;
-        else if (data && typeof data === 'object') workersData = Object.values(data);
-        else workersData = [];
+        const response = await axios.get('https://service-portal-hppp.onrender.com/api/users/');
+        // Assuming backend returns { workers: [...] }
+        // Adjust if backend returns array directly with response.data
+        const workersData = response.data.workers || response.data || [];
         setMockWorkers(workersData);
       } catch (error) {
         console.error('Error fetching workers:', error);
@@ -120,54 +75,54 @@ export const Search = () => {
     fetchWorkers();
   }, []);
 
-  const onChangeProfession = (val) => {
-    setSelectedProfession(val);
-    const params = new URLSearchParams(location.search);
-    if (val === 'all') params.delete('profession');
-    else params.set('profession', val);
-    navigate({ pathname: '/search', search: params.toString() }, { replace: true });
-  };
-
-
-
   // Filter and sort workers based on search and filters
   const filteredWorkers = useMemo(() => {
-    if (!Array.isArray(mockWorkers)) return [];
-    const search = searchQuery.toLowerCase();
+    let filtered = mockWorkers.filter((worker) => {
+      const search = searchQuery.toLowerCase();
 
-    const filtered = mockWorkers.filter((worker) => {
-      const skills = Array.isArray(worker.skills) ? worker.skills : [];
       const matchesSearch =
         worker.name?.toLowerCase().includes(search) ||
         worker.profession?.toLowerCase().includes(search) ||
-        skills.some((s) => String(s).toLowerCase().includes(search));
+        (worker.skills || []).some((skill) =>
+          skill.toLowerCase().includes(search)
+        );
 
       const matchesProfession =
-        selectedProfession === 'all' ||
-        normalize(worker.profession) === normalize(selectedProfession);
-
+        selectedProfession === 'all' || worker.profession === selectedProfession;
       const matchesLocation =
         selectedLocation === 'all' ||
         worker.location?.toLowerCase().includes(selectedLocation.toLowerCase());
-
-      const matchesRating = (worker.rating ?? 0) >= minRating;
+      const matchesRating = (worker.rating || 0) >= minRating;
 
       return matchesSearch && matchesProfession && matchesLocation && matchesRating;
     });
 
     filtered.sort((a, b) => {
       switch (sortBy) {
-        case 'rating': return (b.rating ?? 0) - (a.rating ?? 0);
-        case 'reviews': return (b.totalReviews ?? 0) - (a.totalReviews ?? 0);
-        case 'experience': return (b.experience ?? 0) - (a.experience ?? 0);
-        case 'price_low': return (a.hourlyRate ?? 0) - (b.hourlyRate ?? 0);
-        case 'price_high': return (b.hourlyRate ?? 0) - (a.hourlyRate ?? 0);
-        default: return 0;
+        case 'rating':
+          return (b.rating || 0) - (a.rating || 0);
+        case 'reviews':
+          return (b.totalReviews || 0) - (a.totalReviews || 0);
+        case 'experience':
+          return (b.experience || 0) - (a.experience || 0);
+        case 'price_low':
+          return (a.hourlyRate || 0) - (b.hourlyRate || 0);
+        case 'price_high':
+          return (b.hourlyRate || 0) - (a.hourlyRate || 0);
+        default:
+          return 0;
       }
     });
 
     return filtered;
-  }, [mockWorkers, searchQuery, selectedProfession, selectedLocation, minRating, sortBy]);
+  }, [
+    mockWorkers,
+    searchQuery,
+    selectedProfession,
+    selectedLocation,
+    minRating,
+    sortBy,
+  ]);
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -210,7 +165,7 @@ export const Search = () => {
                 </label>
                 <Select
                   value={selectedProfession}
-                  onValueChange={onChangeProfession}
+                  onValueChange={setSelectedProfession}
                   disabled={isLoading}
                 >
                   <SelectTrigger className="w-full bg-white border border-black-200 focus:outline-none focus:border-black">
@@ -422,7 +377,7 @@ export const Search = () => {
                 {/* Action Buttons */}
                 <div className="flex space-x-2">
                   <Link to={`/worker/${worker.id || worker._id}`} className="flex-1">
-                    <Button className={`flex-1 ${isWorker ? 'bg-gradient-to-r from-blue-500 to-green-500' : 'bg-blue-500 hover:bg-blue-600'}  `}>
+                    <Button className={`flex-1 ${isWorker ? 'bg-gradient-to-r from-blue-500 to-green-500': 'bg-blue-500 hover:bg-blue-600'}  `}>
                       View Profile
                     </Button>
                   </Link>
@@ -432,7 +387,7 @@ export const Search = () => {
                     <MessageCircle className="w-4 h-4" />
                   </Button>
                   <Button variant="outline" size="sm" className={`p-2 ${isWorker ? 'text-green-500 border-green-400 hover:bg-gradient-to-r from-blue-500 to-green-500 ' : 'text-blue-600 border-blue-200 hover:bg-blue-50'}`}
-                    title="Call">
+                   title="Call">
                     <Phone className="w-4 h-4" />
                   </Button>
                 </div>

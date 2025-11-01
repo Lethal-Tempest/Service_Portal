@@ -25,25 +25,26 @@ app.use(cors());
 
 // CORS configuration
 
-// const allowedOrigins = [
-//   'https://service-portal-noyb.vercel.app',
-//   'http://localhost:3000', // dev
-// ];
+const allowedOrigins = [
+  'https://service-portal-six.vercel.app', // production
+  'http://localhost:3000', // dev
+  'http://localhost:5000', // dev
+];
 
-// app.use(cors({
-//   origin: (origin, callback) => {
-//     if (!origin || allowedOrigins.includes(origin)) {
-//       callback(null, true);
-//     } else {
-//       callback(new Error('Not allowed by CORS'));
-//     }
-//   },
-//   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-//   credentials: true,
-// }));
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true,
+}));
 
-// // handle preflight
-// app.options('*', cors());
+// handle preflight
+app.options('*', cors());
 
 
 
@@ -59,3 +60,13 @@ app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
 
+/*
+
+interfaces should be different for both
+customer credibility/rating
+join as worker button should be removed
+email id is not required (dummy if required)
+2 phone numbers
+voter id should be too (additional ids)
+
+*/
